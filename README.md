@@ -71,7 +71,7 @@ For more information, you can follow [this guide](https://developers.zoom.us/doc
 
 Remember, credentials should never be stored in a plaintext file for production use cases.
 
-> :warning: **Never commit credentials.yaml to version control:** The file likely contains Zoom SDK and Zoom OAuth
+> :warning: **Never commit config.ini to version control:** The file likely contains Zoom SDK and Zoom OAuth
 > Credentials
 
 ### Testing
