@@ -11,19 +11,19 @@ variety of use cases through an intuitive CLI or through a configuration file.
     1. SDK Key
     1. SDK Secret
 
-### Clone the Repository
+## 1. Clone the Repository
 
 ```bash
 # Clone down this repository
 git clone git@github.com:zoom/meetingsdk-headless-linux-sample.git
 ```
 
-### 1. Download the Zoom Linux SDK
+## 2. Download the Zoom Linux SDK
 
 Download the latest version of the Zoom SDK for Linux from the Zoom Marketplace and place it in
 the [lib/zoomsdk](lib/zoomsdk) folder of this repository.
 
-### 2. Configure the Bot
+## 3. Configure the Bot
 
 If you don't already have them, follow the section on how
 to [Get your Zoom Meeting SDK Credentials](#get-your-zoom-meeting-sdk-credentials).
@@ -44,7 +44,7 @@ and SDK Secret in the relevant fields.
 
 You can either provide a Join URL, or a Meeting ID and Password.
 
-### 3. Run the Bot
+## 4. Run the Bot
 
 Run the Docker container in order to build and run the bot
 
@@ -52,6 +52,8 @@ Run the Docker container in order to build and run the bot
 docker compose up
 ```
 
+That's it! You can use the --help argument in [entry.sh](bin/entry.sh) to see the available CLI and config.ini options.
+___
 ### Get your Zoom Meeting SDK Credentials
 
 In your web browser, navigate to [Zoom Developer Portal](https://developers.zoom.us/) and register/log into your
