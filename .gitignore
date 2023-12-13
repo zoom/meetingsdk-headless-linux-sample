@@ -108,6 +108,9 @@ compile_commands.json
 ### Jetbrains
 .idea/
 
+### VS Code
+.vscode/
+
 ### CMake template
 CMakeLists.txt.user
 CMakeCache.txt

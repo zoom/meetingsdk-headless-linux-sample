@@ -1,6 +1,5 @@
-
-#ifndef HEADLESS_BOT_SAMPLE_USER_UNICODE_H
-#define HEADLESS_BOT_SAMPLE_USER_UNICODE_H
+#ifndef MEETING_SDK_LINUX_SAMPLE_UNICODE_H
+#define MEETING_SDK_LINUX_SAMPLE_UNICODE_H
 
 #include <string>
 
@@ -11,4 +10,4 @@ namespace Emoji {
     const string hourglass = "⏳";
 }
 
-#endif //HEADLESS_BOT_SAMPLE_USER_UNICODE_H
+#endif //MEETING_SDK_LINUX_SAMPLE_UNICODE_H

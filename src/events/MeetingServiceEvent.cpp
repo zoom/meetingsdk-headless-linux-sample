@@ -23,7 +23,7 @@ void MeetingServiceEvent::onMeetingStatusChanged(MeetingStatus status, int iResu
             message = "disconnecting from the meeting";
             break;
         case MEETING_STATUS_INMEETING:
-            message = "joined meeting";
+            message = "connected";
             icon = Emoji::checkMark;
             cout << icon << " " << message << endl;
             if (m_onMeetingJoin) m_onMeetingJoin();

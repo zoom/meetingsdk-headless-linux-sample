@@ -1,7 +1,3 @@
-//
-// Created by Max Mansfield on 8/30/23.
-//
-
 #ifndef MEETING_SDK_LINUX_SAMPLE_CONFIG_H
 #define MEETING_SDK_LINUX_SAMPLE_CONFIG_H
 
@@ -23,8 +19,9 @@ using namespace ada;
 
 class Config {
 
-    const string& m_name = "Zoom Meeting SDK for Linux Sample";
-    const string& m_version = "1.0.1";
+    const string& m_version = "1.0.2";
+    const string& m_name = "Zoom Meeting SDK for Linux Sample v" + m_version;
+
 
     CLI::App m_app;
 
@@ -39,8 +36,8 @@ class Config {
     string m_password;
     string m_displayName;
 
-    string m_sdkKey;
-    string m_sdkSecret;
+    string m_clientId;
+    string m_clientSecret;
 
     string m_zoomHost;
     string m_joinToken;
@@ -59,8 +56,8 @@ public:
     const string& joinToken() const;
     const string& joinUrl() const;
 
-    const string& sdkKey() const;
-    const string& sdkSecret() const;
+    const string& clientId() const;
+    const string& clientSecret() const;
 
     const string& zoomHost() const;
 
