@@ -9,6 +9,8 @@
 #include <jwt-cpp/jwt.h>
 
 #include "Config.h"
+#include "util/Singleton.h"
+#include "util/Unicode.h"
 
 #include "zoom_sdk.h"
 #include "rawdata/zoom_rawdata_api.h"
@@ -16,6 +18,7 @@
 
 #include "meeting_service_components/meeting_audio_interface.h"
 #include "meeting_service_components/meeting_participants_ctrl_interface.h"
+#include "setting_service_interface.h"
 
 #include "events/AuthServiceEvent.h"
 #include "events/MeetingServiceEvent.h"
@@ -31,8 +34,11 @@ using namespace ZOOMSDK;
 
 typedef chrono::time_point<chrono::system_clock> time_point;
 
-class Zoom {
-    Config* m_config;
+class Zoom : public Singleton<Zoom> {
+
+    friend class Singleton<Zoom>;
+
+    Config m_config;
 
     string m_jwt;
 
@@ -40,6 +46,7 @@ class Zoom {
     time_point m_exp;
 
     IMeetingService* m_meetingService;
+    ISettingService* m_settingService;
     IAuthService* m_authService;
 
     IZoomSDKRenderer* m_videoHelper;
@@ -48,15 +55,14 @@ class Zoom {
     IZoomSDKAudioRawDataHelper* m_audioHelper;
     ZoomSDKAudioRawDataDelegate* m_audioSource;
 
-    SDKError startRawRecording();
-    SDKError stopRawRecording();
+    SDKError createServices();
     void generateJWT(const string& key, const string& secret);
 
 public:
-    Zoom(Config* config);
-
+    ~Zoom();
     SDKError init();
     SDKError auth(function<void()> onAuth);
+    SDKError config(int ac, char** av);
 
     SDKError join();
     SDKError start();
@@ -65,9 +71,15 @@ public:
     SDKError clean();
 
     SDKError startOrJoin();
+    SDKError startRawRecording();
+    SDKError stopRawRecording();
 
     bool isMeetingStart();
-    static bool hasError(SDKError e, const string& action="") ;
+
+    static bool hasError(SDKError e, const string& action="");
+    static void success(const string& message);
+    static void info(const string& message);
+    static void error(const string& message);
 };
 
 #endif //MEETING_SDK_LINUX_SAMPLE_ZOOM_H

@@ -1,12 +1,29 @@
 #include "Zoom.h"
 
-Zoom::Zoom(Config* config) : m_config(config) {}
+Zoom::~Zoom() {
+    if (m_audioSource)
+        delete m_audioSource;
+
+    if (m_videoSource)
+        delete m_videoSource;
+}
+
+
+SDKError Zoom::config(int ac, char** av) {
+    auto status = m_config.read(ac, av);
+    if (status) {
+        cerr << "failed to read configuration" << endl;
+        return SDKERR_INTERNAL_ERROR;
+    }
+
+    return SDKERR_SUCCESS;
+}
 
 SDKError Zoom::init() {
     SDKError err;
 
-    auto key = m_config->sdkKey();
-    auto secret = m_config->sdkSecret();
+    auto key = m_config.sdkKey();
+    auto secret = m_config.sdkSecret();
 
     if (key.empty() || secret.empty()) {
         return SDKERR_UNINITIALIZE;
@@ -14,7 +31,7 @@ SDKError Zoom::init() {
 
     InitParam initParam;
 
-    auto host = m_config->zoomHost().c_str();
+    auto host = m_config.zoomHost().c_str();
 
     initParam.strWebDomain = host;
     initParam.strSupportUrl = host;
@@ -25,41 +42,56 @@ SDKError Zoom::init() {
     initParam.enableGenerateDump = true;
 
     err = InitSDK(initParam);
-    if (hasError(err, "InitSDK()"))
-        return err;
+    if (hasError(err)) return err;
 
-    err = CreateMeetingService(&m_meetingService);
-    if (!hasError(err, "CreateMeetingService()"))
-        return err;
+    return createServices();
+}
 
-    auto recordingCtrl = m_meetingService->GetMeetingRecordingController();
 
-    function <void(bool)> onPrivilegeChanged = [&](bool canRec) {
-        if (!m_config->useRawRecording()) return;
+SDKError Zoom::createServices() {
+    auto err = CreateMeetingService(&m_meetingService);
+    if (hasError(err)) return err;
 
-        SDKError e = canRec ? startRawRecording() : stopRawRecording();
-        hasError(err, "onPrivilegeChanged");
+    err = CreateSettingService(&m_settingService);
+    if (hasError(err)) return err;
+
+    function<void()> onJoin = [&]() {
+        auto* reminderController = m_meetingService->GetMeetingReminderController();
+        reminderController->SetEvent(new MeetingReminderEvent());
+
+        if (m_config.useRawRecording()) {
+
+            auto recordingCtrl = m_meetingService->GetMeetingRecordingController();
+
+            function<void(bool)> onRecordingPrivilegeChanged = [&](bool canRec) {
+                if (canRec)
+                    startRawRecording();
+                else
+                    stopRawRecording();
+            };
+
+            auto recordingEvent = new MeetingRecordingCtrlEvent(onRecordingPrivilegeChanged);
+            recordingCtrl->SetEvent(recordingEvent);
+
+            auto e = recordingCtrl->CanStartRawRecording();
+            string action = " local recording privilege";
+
+            if (e == SDKERR_SUCCESS) {
+                e = startRawRecording();
+                action = "has" + action;
+            } else {
+                e = recordingCtrl->RequestLocalRecordingPrivilege();
+                action = "request" + action;
+            }
+
+            hasError(e, action);
+        }
     };
 
-    function <void()> onStart = [&recordingCtrl]() {
-        if (!recordingCtrl->CanStartRawRecording())
-            recordingCtrl->RequestLocalRecordingPrivilege();
-    };
+    auto meetingServiceEvent = new MeetingServiceEvent();
+    meetingServiceEvent->setOnMeetingJoin(onJoin);
 
-    function<void()> onEnd = [&]{
-        clean();
-    };
-
-    recordingCtrl->SetEvent(new MeetingRecordingCtrlEvent(onPrivilegeChanged));
-
-    auto meetingServiceEvent = new MeetingServiceEvent(onStart);
-    meetingServiceEvent->setOnMeetingEnd(onEnd);
-
-    m_meetingService->SetEvent(meetingServiceEvent);
-
-    auto reminderController = m_meetingService->GetMeetingReminderController();
-    reminderController->SetEvent(new MeetingReminderEvent());
-
+    err = m_meetingService->SetEvent(meetingServiceEvent);
     return err;
 }
 
@@ -67,21 +99,17 @@ SDKError Zoom::auth(function<void()> onAuth) {
    SDKError err;
 
     err = CreateAuthService(&m_authService);
-    if (hasError(err, "create auth service"))
-        return err;
+    if (hasError(err)) return err;
 
     err = m_authService->SetEvent(new AuthServiceEvent(onAuth));
-    if (hasError(err, "set auth event"))
-        return err;
+    if (hasError(err)) return err;
 
-    generateJWT(m_config->sdkKey(), m_config->sdkSecret());
+    generateJWT(m_config.sdkKey(), m_config.sdkSecret());
 
     AuthContext ctx;
     ctx.jwt_token =  m_jwt.c_str();
 
-    err = m_authService->SDKAuth(ctx);
-
-    return err;
+    return m_authService->SDKAuth(ctx);
 }
 
 void Zoom::generateJWT(const string& key, const string& secret) {
@@ -99,9 +127,9 @@ void Zoom::generateJWT(const string& key, const string& secret) {
 }
 
 SDKError Zoom::join() {
-    auto id = m_config->meetingId();
-    auto password = m_config->password();
-    auto displayName = m_config->displayName();
+    auto id = m_config.meetingId();
+    auto password = m_config.password();
+    auto displayName = m_config.displayName();
 
     if (id.empty() || password.empty()) {
         cerr << "you must provide an id and password to join a meeting" << endl;
@@ -109,7 +137,7 @@ SDKError Zoom::join() {
     }
 
     auto meetingNumber = stoull(id);
-    auto userName = displayName.empty() ? "Zoom Meeting Bot" : displayName.c_str();
+    auto userName = displayName.c_str();
     auto psw = password.c_str();
 
     JoinParam joinParam;
@@ -123,11 +151,18 @@ SDKError Zoom::join() {
     param.vanityID = nullptr;
     param.customer_key = nullptr;
     param.webinarToken = nullptr;
-    param.isVideoOff = true;
+    param.isVideoOff = false;
     param.isAudioOff = false;
 
-    if (!m_config->joinToken().empty())
-        param.app_privilege_token = m_config->joinToken().c_str();
+    if (!m_config.joinToken().empty())
+        param.app_privilege_token = m_config.joinToken().c_str();
+
+    if (m_config.useRawAudio()) {
+        auto* audioSettings = m_settingService->GetAudioSettings();
+        if (!audioSettings) return SDKERR_INTERNAL_ERROR;
+
+        audioSettings->EnableAutoJoinAudio(true);
+    }
 
     return m_meetingService->Join(joinParam);
 }
@@ -162,11 +197,20 @@ SDKError Zoom::leave() {
 }
 
 SDKError Zoom::clean() {
-    if (m_authService) DestroyAuthService(m_authService);
-    if (m_meetingService) DestroyMeetingService(m_meetingService);
+    if (m_meetingService)
+        DestroyMeetingService(m_meetingService);
 
-    if (m_videoHelper) m_videoHelper->unSubscribe();
-    if (m_audioHelper) m_audioHelper->unSubscribe();
+    if (m_settingService)
+        DestroySettingService(m_settingService);
+
+    if (m_authService)
+        DestroyAuthService(m_authService);
+
+    if (m_audioHelper)
+        m_audioHelper->unSubscribe();
+
+    if (m_videoHelper)
+        m_videoHelper->unSubscribe();
 
     return CleanUPSDK();
 }
@@ -179,9 +223,6 @@ SDKError Zoom::startOrJoin() {
     else
         err = join();
 
-    string action = isMeetingStart() ? "start" : "join";
-    Zoom::hasError(err, action + "a meeting");
-
     return err;
 }
 
@@ -189,14 +230,14 @@ SDKError Zoom::startRawRecording() {
     SDKError err;
 
     auto recCtrl = m_meetingService->GetMeetingRecordingController();
-    if (!recCtrl->CanStartRawRecording())
+    if (recCtrl->CanStartRawRecording() != SDKERR_SUCCESS)
         return SDKERR_UNAUTHENTICATION;
 
     err = recCtrl->StartRawRecording();
     if (hasError(err, "start raw recording"))
         return err;
 
-    if (m_config->useRawVideo()) {
+    if (m_config.useRawVideo()) {
         err = createRenderer(&m_videoHelper, m_videoSource);
         if (hasError(err, "create raw video renderer"))
             return err;
@@ -210,10 +251,13 @@ SDKError Zoom::startRawRecording() {
             return err;
     }
 
-    if (m_config->useRawAudio()) {
+    if (m_config.useRawAudio()) {
         m_audioHelper = GetAudioRawdataHelper();
         if (!m_audioHelper)
             return SDKERR_UNINITIALIZE;
+
+        if (!m_audioSource)
+            m_audioSource = new ZoomSDKAudioRawDataDelegate();
 
         err = m_audioHelper->subscribe(m_audioSource);
         if (hasError(err, "subscribe to raw audio"))
@@ -232,15 +276,34 @@ SDKError Zoom::stopRawRecording() {
 }
 
 bool Zoom::isMeetingStart() {
-    return m_config->isMeetingStart();
+    return m_config.isMeetingStart();
+}
+
+void Zoom::success(const string& message) {
+    cout << Emoji::checkMark << " " << message << endl;
+}
+
+void Zoom::info(const std::string& message) {
+    cout << Emoji::hourglass << " " << message << endl;
+
+}
+
+void Zoom::error(const string& message) {
+    cerr << Emoji::crossMark << " " << message << endl;
 }
 
 bool Zoom::hasError(const SDKError e, const string& action) {
     auto isError = e != SDKERR_SUCCESS;
 
-    if (isError && !action.empty())
-        cerr << "failed to " << action << " with status " << e << endl;
-
+    if(!action.empty()) {
+        if (isError) {
+            stringstream ss;
+            ss << "failed to " << action << " with status " << e;
+            Zoom::error(ss.str());
+        } else {
+            Zoom::success(action);
+        }
+    }
     return isError;
 }
 

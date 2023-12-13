@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-OUT=build
+BUILD=build
 
 setup-pulseaudio() {
   # Enable dbus
@@ -30,7 +30,7 @@ setup-pulseaudio() {
 
 build() {
   # Configure CMake
-  [[ ! -d "$OUT" ]] && { cmake -B "$OUT" -S . --preset debug || exit; }
+  [[ ! -d "$BUILD" ]] && { cmake -B "$BUILD" -S . --preset debug || exit; }
 
   # Rename the shared library
   LIB="lib/zoomsdk/libmeetingsdk.so"
@@ -40,14 +40,12 @@ build() {
   setup-pulseaudio &> /dev/null || exit;
 
   # Build the Source Code
-  cmake --build "$OUT"
+  cmake --build "$BUILD" || exit
 }
 
-run() {
-  ./$OUT/zoomsdk;
-}
+build
 
-build && run
+exec ./"$BUILD"/zoomsdk;
 
 exit
 

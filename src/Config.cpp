@@ -2,15 +2,17 @@
 
 Config::Config() :
         m_app(m_name, m_version),
-        m_rawRecordCmd(m_app.add_subcommand("RawRecord", "Begin Raw Recording A/V for use as a Zoom Bot")) {
+        m_rawRecordCmd(m_app.add_subcommand("RawRecord", "Begin Raw Recording A/V for use as a Zoom Bot")),
+        m_zoomHost("https://zoom.us"),
+        m_displayName("Zoom Meeting Bot"){
 
     m_app.set_config("--config")->default_str("config.ini");
 
     m_app.add_option("-m, --meeting-id", m_meetingId,"Meeting ID of the meeting");
     m_app.add_option("-p, --password", m_password,"Password of the meeting");
-    m_app.add_option("-n, --display-name",m_displayName,"Display Name for the meeting");
+    m_app.add_option("-n, --display-name", m_displayName,"Display Name for the meeting")->capture_default_str();;
 
-    m_app.add_option("--host", m_zoomHost, "Host Domain for the Zoom Meeting")->default_str("https://zoom.us");
+    m_app.add_option("--host", m_zoomHost, "Host Domain for the Zoom Meeting")->capture_default_str();
     m_app.add_option("-u, --url", m_joinUrl, "Join or Start a Meeting URL");
     m_app.add_option("-t, --join-token", m_joinToken, "Join the meeting with App Privilege using a token");
 
@@ -78,7 +80,7 @@ bool Config::parseUrl(const string& join_url) {
 }
 
 bool Config::useRawRecording() const {
-    return m_rawRecordCmd->parsed();
+    return m_useRawAudio || m_useRawVideo;
 }
 
 bool Config::useRawAudio() const {

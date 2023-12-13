@@ -1,9 +1,7 @@
 #include "ZoomSDKAudioRawDataDelegate.h"
 
-
 void ZoomSDKAudioRawDataDelegate::onMixedAudioRawDataReceived(AudioRawData* data) {
-    //  redirect program output to a file to save data
-    cout << data->GetBuffer();
+    //cout << "onMixedAudioRawDataReceived" << endl;
 }
 
 void ZoomSDKAudioRawDataDelegate::onOneWayAudioRawDataReceived(AudioRawData* data, uint32_t node_id) {
