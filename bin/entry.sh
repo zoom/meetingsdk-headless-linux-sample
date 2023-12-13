@@ -40,12 +40,14 @@ build() {
   setup-pulseaudio &> /dev/null || exit;
 
   # Build the Source Code
-  cmake --build "$BUILD" || exit
+  cmake --build "$BUILD"
 }
 
-build
+run() {
+  exec ./"$BUILD"/zoomsdk --help;
+}
 
-exec ./"$BUILD"/zoomsdk;
+build && run;
 
 exit
 

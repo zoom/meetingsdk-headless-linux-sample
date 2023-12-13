@@ -69,7 +69,6 @@ public:
 
     SDKError clean();
 
-    SDKError startOrJoin();
     SDKError startRawRecording();
     SDKError stopRawRecording();
 

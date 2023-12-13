@@ -1,7 +1,7 @@
 #include "Config.h"
 
 Config::Config() :
-        m_app(m_name, m_version),
+        m_app(m_name, "zoomsdk"),
         m_rawRecordCmd(m_app.add_subcommand("RawRecord", "Begin Raw Recording A/V for use as a Zoom Bot")),
         m_zoomHost("https://zoom.us"),
         m_displayName("Zoom Meeting Bot"){
@@ -13,11 +13,11 @@ Config::Config() :
     m_app.add_option("-n, --display-name", m_displayName,"Display Name for the meeting")->capture_default_str();;
 
     m_app.add_option("--host", m_zoomHost, "Host Domain for the Zoom Meeting")->capture_default_str();
-    m_app.add_option("-u, --url", m_joinUrl, "Join or Start a Meeting URL");
+    m_app.add_option("-u, --join-url", m_joinUrl, "Join or Start a Meeting URL");
     m_app.add_option("-t, --join-token", m_joinToken, "Join the meeting with App Privilege using a token");
 
-    m_app.add_option("--sdk-key", m_sdkKey, "Zoom Meeting SDK Key");
-    m_app.add_option("--sdk-secret", m_sdkSecret, "Zoom Meeting SDK Secret");
+    m_app.add_option("--client-id", m_clientId, "Zoom Meeting Client ID")->required();
+    m_app.add_option("--client-secret", m_clientSecret, "Zoom Meeting Client Secret")->required();
 
     m_app.add_flag("-s, --start", m_isMeetingStart, "Start a Zoom Meeting");
 
@@ -28,22 +28,18 @@ Config::Config() :
 int Config::read(int ac, char **av) {
     try {
         m_app.parse(ac, av);
+    } catch( const CLI::CallForHelp &e ){
+        exit(m_app.exit(e));
     } catch (const CLI::ParseError& err) {
         return m_app.exit(err);
-    }
+    } 
 
     if (!m_joinUrl.empty())
         parseUrl(m_joinUrl);
 
+    
+
    return 0;
-}
-
-const string& Config::sdkKey() const {
-    return m_sdkKey;
-}
-
-const string& Config::sdkSecret() const {
-    return m_sdkSecret;
 }
 
 bool Config::parseUrl(const string& join_url) {
@@ -77,6 +73,14 @@ bool Config::parseUrl(const string& join_url) {
     m_password = move(*search.get(string_view("pwd")));
 
     return true;
+}
+
+const string& Config::clientId() const {
+    return m_clientId;
+}
+
+const string& Config::clientSecret() const {
+    return m_clientSecret;
 }
 
 bool Config::useRawRecording() const {
