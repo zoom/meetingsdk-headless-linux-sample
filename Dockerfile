@@ -38,6 +38,11 @@ RUN apt-get install -y libasound2 libasound2-plugins alsa alsa-utils alsa-oss
 # Install Pulseaudio
 RUN apt-get install -y  pulseaudio pulseaudio-utils
 
+## Install Tini
+ENV TINI_VERSION v0.19.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
+
 FROM base AS deps
 
 WORKDIR /opt
@@ -50,5 +55,6 @@ RUN git clone --depth 1 https://github.com/Microsoft/vcpkg.git \
 FROM deps AS build
 
 WORKDIR $cwd
-CMD ["/bin/bash", "./bin/entry.sh"]
+ENTRYPOINT ["/tini", "--", "./bin/entry.sh"]
+
 

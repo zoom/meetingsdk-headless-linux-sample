@@ -1,16 +1,17 @@
 #include "MeetingServiceEvent.h"
 
-MeetingServiceEvent::MeetingServiceEvent(function<void()>& onMeetingJoin) : m_onMeetingJoin(onMeetingJoin) {
+MeetingServiceEvent::MeetingServiceEvent() {
 
 }
 void MeetingServiceEvent::onMeetingStatusChanged(MeetingStatus status, int iResult) {
-    cout << "OnMeetingStatusChanged" << endl;
     if (m_onMeetingStatusChanged) {
         m_onMeetingStatusChanged(status, iResult);
         return;
     }
 
     string message;
+    auto icon = Emoji::hourglass;
+
     switch (status) {
         case MEETING_STATUS_CONNECTING:
             message = "connecting to the meeting";
@@ -19,25 +20,35 @@ void MeetingServiceEvent::onMeetingStatusChanged(MeetingStatus status, int iResu
             message = "reconnecting to the meeting";
             break;
         case MEETING_STATUS_DISCONNECTING:
-            message = "leaving the meeting";
+            message = "disconnecting from the meeting";
             break;
         case MEETING_STATUS_INMEETING:
-            message = "joined meeting successfully";
+            message = "joined meeting";
+            icon = Emoji::checkMark;
+            cout << icon << " " << message << endl;
             if (m_onMeetingJoin) m_onMeetingJoin();
-            break;
+            return;
         case MEETING_STATUS_ENDED:
-            message = "joined meeting successfully";
+            message = "meeting ended";
+            icon = Emoji::checkMark;
+            cout << icon << " " << message << endl;
             if (m_onMeetingEnd) m_onMeetingEnd();
-            break;
+            return;
         case MEETING_STATUS_FAILED:
+            icon = Emoji::crossMark;
             message = "failed to connect to the meeting";
             break;
         case MEETING_STATUS_WAITINGFORHOST:
             message = "waiting for the meeting to start";
             break;
+        default:
+            icon = Emoji::crossMark;
+            message = "unknown meeting status";
+            break;
     }
 
-    cout << message << endl;
+    if (!message.empty())
+        cout << icon << " " << message << endl;
 }
 
 void MeetingServiceEvent::onMeetingParameterNotification(const MeetingParameter *meeting_param) {
@@ -64,10 +75,6 @@ void MeetingServiceEvent::setOnMeetingJoin(const function<void()>& callback) {
     m_onMeetingJoin = callback;
 }
 
-void MeetingServiceEvent::setOnMeetingStarted(const function<void()>& callback) {
-    m_onMeetingStarted = callback;
-}
-
 void MeetingServiceEvent::setOnMeetingEnd(const function<void()>& callback) {
     m_onMeetingEnd = callback;
 }
@@ -89,6 +96,6 @@ MeetingServiceEvent::setOnAiCompanionActiveChangeNotice(const function<void(bool
     m_onAICompanionActiveChangeNotice = callback;
 }
 
-void MeetingServiceEvent::setOnMeetingStatusChanged(function<void(MeetingStatus, int)> callback) {
+void MeetingServiceEvent::setOnMeetingStatusChanged(function<void(MeetingStatus, int)>& callback) {
     m_onMeetingStatusChanged = callback;
 }
