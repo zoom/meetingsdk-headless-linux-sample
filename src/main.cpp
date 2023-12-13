@@ -5,74 +5,76 @@
 
 using namespace std;
 
+
 /**
- * Callback fired when a signal is trapped
- * @param signal
+ *  Callback fired atexit()
  */
-void onSignal(int signal) {
+void onExit() {
     auto zoom = &Zoom::getInstance();
     zoom->leave();
     zoom->clean();
 
     cout << "exiting..." << endl;
+}
+
+/**
+ * Callback fired when a signal is trapped
+ * @param signal type of signal
+ */
+void onSignal(int signal) {
+    onExit();
     _Exit(signal);
 }
 
-/**
- * Callback fired when Zoom SDK authorization completes
- */
-void onAuth() {
-    auto zoom = &Zoom::getInstance();
-    auto err = zoom->startOrJoin();
-
-    if (Zoom::hasError(err)) abort();
-}
-
 
 /**
- * Used as a callback when the glib main loop times out
- * @param data callback data
- * @return gboolean TRUE
+ * Callback for glib event loop
+ * @param data event data
+ * @return always TRUE
  */
 gboolean onTimeout (gpointer data) {
     return TRUE;
 }
 
 /**
- * Configure Zoom using command line arguments
+ * Run the Zoom Meeting Bot
  * @param argc argument count
  * @param argv argument vector
  * @return SDKError
  */
-SDKError configure(int argc, char** argv) {
+SDKError run(int argc, char** argv) {
     SDKError err{SDKERR_SUCCESS};
     auto* zoom = &Zoom::getInstance();
 
+    // read the CLI and config.ini file
     err = zoom->config(argc, argv);
     if (Zoom::hasError(err, "configure"))
         return err;
 
+    // initialize the Zoom SDK
     err = zoom->init();
     if(Zoom::hasError(err, "initialize"))
         return err;
 
-    err = zoom->auth(onAuth);
+    // authorize with the Zoom SDK
+    err = zoom->auth();
     if (Zoom::hasError(err, "authorize"))
         return err;
 
     signal(SIGINT, onSignal);
     signal(SIGTERM, onSignal);
-    signal(SIGKILL, onSignal);
-    signal(SIGABRT, onSignal);
+
+    atexit(onExit);
 
     return err;
 }
 
 int main(int argc, char **argv) {
-    SDKError err = configure(argc, argv);
+    SDKError err = run(argc, argv);
     if (err != SDKERR_SUCCESS)
         return err;
 
+    // Use an event loop to receive callbacks
     GMainLoop* eventLoop;
     eventLoop = g_main_loop_new(NULL, FALSE);
     g_timeout_add(100, onTimeout, eventLoop);
