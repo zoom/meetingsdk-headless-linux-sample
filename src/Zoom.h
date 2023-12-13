@@ -59,9 +59,8 @@ class Zoom : public Singleton<Zoom> {
     void generateJWT(const string& key, const string& secret);
 
 public:
-    ~Zoom();
     SDKError init();
-    SDKError auth(function<void()> onAuth);
+    SDKError auth();
     SDKError config(int ac, char** av);
 
     SDKError join();
