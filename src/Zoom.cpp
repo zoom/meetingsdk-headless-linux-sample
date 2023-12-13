@@ -1,14 +1,5 @@
 #include "Zoom.h"
 
-Zoom::~Zoom() {
-    if (m_audioSource)
-        delete m_audioSource;
-
-    if (m_videoSource)
-        delete m_videoSource;
-}
-
-
 SDKError Zoom::config(int ac, char** av) {
     auto status = m_config.read(ac, av);
     if (status) {
@@ -95,11 +86,19 @@ SDKError Zoom::createServices() {
     return err;
 }
 
-SDKError Zoom::auth(function<void()> onAuth) {
+SDKError Zoom::auth() {
    SDKError err;
 
     err = CreateAuthService(&m_authService);
     if (hasError(err)) return err;
+
+    function<void()> onAuth = [&]() {
+        auto err = startOrJoin();
+        if(hasError(err)) {
+            error("failed to start or join a meeting");
+            exit(err);
+        }
+    };
 
     err = m_authService->SetEvent(new AuthServiceEvent(onAuth));
     if (hasError(err)) return err;
