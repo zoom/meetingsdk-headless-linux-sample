@@ -1,8 +1,9 @@
 #include "ZoomSDKRendererDelegate.h"
 
 void ZoomSDKRendererDelegate::onRawDataFrameReceived(YUVRawDataI420* data) {
+    cout << "onRawDataFrameReceived" << endl;
     // write each frame to stdout
-    cout << data->GetYBuffer() << data->GetUBuffer() << data->GetVBuffer();
+    //cout << data->GetYBuffer() << data->GetUBuffer() << data->GetVBuffer();
 }
 
 void ZoomSDKRendererDelegate::onRawDataStatusChanged(RawDataStatus status) {
