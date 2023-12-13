@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <functional>
+#include "../util/Unicode.h"
 #include "meeting_service_interface.h"
 
 using namespace std;
@@ -11,7 +12,6 @@ using namespace ZOOMSDK;
 
 class MeetingServiceEvent : public IMeetingServiceEvent {
     function<void()> m_onMeetingJoin;
-    function<void()> m_onMeetingStarted;
     function<void()> m_onMeetingEnd;
     function<void(MeetingStatus status, int iResult)> m_onMeetingStatusChanged;
 
@@ -21,7 +21,7 @@ class MeetingServiceEvent : public IMeetingServiceEvent {
     function<void(bool bActive)> m_onAICompanionActiveChangeNotice;
 
 public:
-    MeetingServiceEvent(function<void()>& onMeetingJoin);
+    MeetingServiceEvent();
 
     /**
      * Meeting status changed callback
@@ -57,9 +57,8 @@ public:
 
     /* Setters for Callbacks */
     void setOnMeetingJoin(const function<void()>& callback);
-    void setOnMeetingStarted(const function<void()>& callback);
     void setOnMeetingEnd(const function<void()>& callback);
-    void setOnMeetingStatusChanged(function<void(MeetingStatus, int)> callback);
+    void setOnMeetingStatusChanged(function<void(MeetingStatus, int)>& callback);
     void setOnMeetingParameterNotification(const function<void(const MeetingParameter*)>& callback);
     void setOnMeetingStatisticsWarningNotification(const function<void(StatisticsWarningType)>& callback);
     void setOnSuspendParticipantsActivities(const function<void()>& callback);
