@@ -1,6 +1,9 @@
 # Build folder
 build
 
+# output folder
+out
+
 # ignore the config file
 config.ini
 
@@ -11,6 +14,11 @@ lib/zoomsdk/qt_libs
 lib/zoomsdk/*.so
 lib/zoomsdk/*.md
 
+# PCM files
+*.pcm
+
+# YUV files
+*.yuv
 
 # MacOS
 .DS_Store

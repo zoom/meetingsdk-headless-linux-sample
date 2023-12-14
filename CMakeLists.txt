@@ -28,7 +28,7 @@ add_executable(zoomsdk src/main.cpp
         src/Config.cpp
         src/Config.h
         src/util/Singleton.h
-        src/util/Unicode.h
+        src/util/Log.h
         src/events/AuthServiceEvent.cpp
         src/events/AuthServiceEvent.h
         src/events/MeetingServiceEvent.cpp

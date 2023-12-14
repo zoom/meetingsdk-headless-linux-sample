@@ -25,7 +25,7 @@ SDKError Zoom::init() {
 
     auto err = InitSDK(initParam);
     if (hasError(err)) {
-        error("InitSDK failed");
+        Log::error("InitSDK failed");
         return err;
     }
 
@@ -76,13 +76,13 @@ SDKError Zoom::auth() {
    auto secret = m_config.clientSecret();
 
     if (id.empty()) {
-        error("Client ID cannot be blank");
+        Log::error("Client ID cannot be blank");
         return err;
     }
     
 
     if (secret.empty()) {
-        error("Client Secret cannot be blank");
+        Log::error("Client Secret cannot be blank");
         return err;
     }
 
@@ -130,17 +130,17 @@ SDKError Zoom::join() {
 
 
     if (mid.empty()) {
-        error("Meeting ID cannot be blank");
+        Log::error("Meeting ID cannot be blank");
         return err;
     }
 
     if (password.empty()) {
-        error("Meeting Password cannot be blank");
+        Log::error("Meeting Password cannot be blank");
         return err;
     }
 
     if (displayName.empty()) {
-        error("Display Name cannot be blank");
+        Log::error("Display Name cannot be blank");
         return err;
     }
 
@@ -229,7 +229,7 @@ SDKError Zoom::startRawRecording() {
     SDKError err = recCtrl->CanStartRawRecording();
 
     if (hasError(err)) {
-        info("requesting local recording privilege");
+        Log::info("requesting local recording privilege");
         return recCtrl->RequestLocalRecordingPrivilege();;
     }
 
@@ -238,12 +238,14 @@ SDKError Zoom::startRawRecording() {
         return err;
 
     if (m_config.useRawVideo()) {
-        err = createRenderer(&m_videoHelper, m_videoSource);
-        if (hasError(err, "create raw video renderer"))
-            return err;
-
+        if (!m_videoSource) {
+            err = createRenderer(&m_videoHelper, m_videoSource);
+            if (hasError(err, "create raw video renderer"))
+                return err;
+        }
+        
         auto participantCtl = m_meetingService->GetMeetingParticipantsController();
-        int uid = participantCtl->GetParticipantsList()->GetItem(0);
+        int uid = participantCtl->GetParticipantsList()->GetItem(1);
 
         m_videoHelper->setRawDataResolution(ZoomSDKResolution_720P);
         err = m_videoHelper->subscribe(uid, RAW_DATA_TYPE_VIDEO);
@@ -256,8 +258,11 @@ SDKError Zoom::startRawRecording() {
         if (!m_audioHelper)
             return SDKERR_UNINITIALIZE;
 
-        if (!m_audioSource)
-            m_audioSource = new ZoomSDKAudioRawDataDelegate();
+        if (!m_audioSource) {
+            m_audioSource = new ZoomSDKAudioRawDataDelegate(!m_config.separateParticipantAudio());
+            m_audioSource->setDir(m_config.audioDir());
+            m_audioSource->setFilename(m_config.audioFile());
+        }
 
         err = m_audioHelper->subscribe(m_audioSource);
         if (hasError(err, "subscribe to raw audio"))
@@ -279,18 +284,6 @@ bool Zoom::isMeetingStart() {
     return m_config.isMeetingStart();
 }
 
-void Zoom::success(const string& message) {
-    cout << Emoji::checkMark << " " << message << endl;
-}
-
-void Zoom::info(const std::string& message) {
-    cout << Emoji::hourglass << " " << message << endl;
-
-}
-
-void Zoom::error(const string& message) {
-    cerr << Emoji::crossMark << " " << message << endl;
-}
 
 bool Zoom::hasError(const SDKError e, const string& action) {
     auto isError = e != SDKERR_SUCCESS;
@@ -299,12 +292,10 @@ bool Zoom::hasError(const SDKError e, const string& action) {
         if (isError) {
             stringstream ss;
             ss << "failed to " << action << " with status " << e;
-            Zoom::error(ss.str());
+            Log::error(ss.str());
         } else {
-            Zoom::success(action);
+            Log::success(action);
         }
     }
     return isError;
 }
-
-
