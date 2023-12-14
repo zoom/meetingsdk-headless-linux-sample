@@ -3,14 +3,12 @@
 #include "Config.h"
 #include "Zoom.h"
 
-using namespace std;
-
 
 /**
  *  Callback fired atexit()
  */
 void onExit() {
-    auto zoom = &Zoom::getInstance();
+    auto* zoom = &Zoom::getInstance();
     zoom->leave();
     zoom->clean();
 
@@ -46,6 +44,11 @@ SDKError run(int argc, char** argv) {
     SDKError err{SDKERR_SUCCESS};
     auto* zoom = &Zoom::getInstance();
 
+    signal(SIGINT, onSignal);
+    signal(SIGTERM, onSignal);
+
+    atexit(onExit);
+
     // read the CLI and config.ini file
     err = zoom->config(argc, argv);
     if (Zoom::hasError(err, "configure"))
@@ -61,17 +64,14 @@ SDKError run(int argc, char** argv) {
     if (Zoom::hasError(err, "authorize"))
         return err;
 
-    signal(SIGINT, onSignal);
-    signal(SIGTERM, onSignal);
-
-    atexit(onExit);
-
     return err;
 }
 
 int main(int argc, char **argv) {
+    // Run the Meeting Bot
     SDKError err = run(argc, argv);
-    if (err != SDKERR_SUCCESS)
+
+    if (Zoom::hasError(err)) 
         return err;
 
     // Use an event loop to receive callbacks

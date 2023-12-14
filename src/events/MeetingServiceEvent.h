@@ -4,8 +4,9 @@
 #include <iostream>
 #include <string>
 #include <functional>
-#include "../util/Unicode.h"
 #include "meeting_service_interface.h"
+
+#include "../util/Log.h"
 
 using namespace std;
 using namespace ZOOMSDK;

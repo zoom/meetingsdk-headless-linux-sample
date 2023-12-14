@@ -10,7 +10,7 @@
 
 #include "Config.h"
 #include "util/Singleton.h"
-#include "util/Unicode.h"
+#include "util/Log.h"
 
 #include "zoom_sdk.h"
 #include "rawdata/zoom_rawdata_api.h"
@@ -69,16 +69,13 @@ public:
 
     SDKError clean();
 
-    SDKError startOrJoin();
     SDKError startRawRecording();
     SDKError stopRawRecording();
 
     bool isMeetingStart();
 
     static bool hasError(SDKError e, const string& action="");
-    static void success(const string& message);
-    static void info(const string& message);
-    static void error(const string& message);
+
 };
 
 #endif //MEETING_SDK_LINUX_SAMPLE_ZOOM_H
