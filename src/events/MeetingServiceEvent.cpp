@@ -9,46 +9,34 @@ void MeetingServiceEvent::onMeetingStatusChanged(MeetingStatus status, int iResu
         return;
     }
 
-    string message;
-    auto icon = Emoji::hourglass;
-
     switch (status) {
         case MEETING_STATUS_CONNECTING:
-            message = "connecting to the meeting";
+            Log::info("connecting to the meeting");
             break;
         case MEETING_STATUS_RECONNECTING:
-            message = "reconnecting to the meeting";
+            Log::info("reconnecting to the meeting");
             break;
         case MEETING_STATUS_DISCONNECTING:
-            message = "disconnecting from the meeting";
+            Log::info("disconnecting from the meeting");
             break;
         case MEETING_STATUS_INMEETING:
-            message = "joined meeting";
-            icon = Emoji::checkMark;
-            cout << icon << " " << message << endl;
+            Log::success("connected");
             if (m_onMeetingJoin) m_onMeetingJoin();
             return;
         case MEETING_STATUS_ENDED:
-            message = "meeting ended";
-            icon = Emoji::checkMark;
-            cout << icon << " " << message << endl;
+            Log::success("meeting ended");
             if (m_onMeetingEnd) m_onMeetingEnd();
             return;
         case MEETING_STATUS_FAILED:
-            icon = Emoji::crossMark;
-            message = "failed to connect to the meeting";
+            Log::error("failed to connect to the meeting");
             break;
         case MEETING_STATUS_WAITINGFORHOST:
-            message = "waiting for the meeting to start";
+            Log::info("waiting for the meeting to start");
             break;
         default:
-            icon = Emoji::crossMark;
-            message = "unknown meeting status";
+            Log::error("unknown meeting status");
             break;
     }
-
-    if (!message.empty())
-        cout << icon << " " << message << endl;
 }
 
 void MeetingServiceEvent::onMeetingParameterNotification(const MeetingParameter *meeting_param) {

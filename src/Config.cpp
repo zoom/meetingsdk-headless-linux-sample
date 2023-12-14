@@ -1,10 +1,10 @@
 #include "Config.h"
 
 Config::Config() :
-        m_app(m_name, m_version),
-        m_rawRecordCmd(m_app.add_subcommand("RawRecord", "Begin Raw Recording A/V for use as a Zoom Bot")),
-        m_zoomHost("https://zoom.us"),
-        m_displayName("Zoom Meeting Bot"){
+        m_app(m_name, "zoomsdk"),
+        m_rawRecordAudioCmd(m_app.add_subcommand("RawAudio", "Enable Audio Raw Recording")),
+        m_rawRecordVideoCmd(m_app.add_subcommand("RawVideo", "Enable Video Raw Recording"))
+    {
 
     m_app.set_config("--config")->default_str("config.ini");
 
@@ -13,37 +13,36 @@ Config::Config() :
     m_app.add_option("-n, --display-name", m_displayName,"Display Name for the meeting")->capture_default_str();;
 
     m_app.add_option("--host", m_zoomHost, "Host Domain for the Zoom Meeting")->capture_default_str();
-    m_app.add_option("-u, --url", m_joinUrl, "Join or Start a Meeting URL");
+    m_app.add_option("-u, --join-url", m_joinUrl, "Join or Start a Meeting URL");
     m_app.add_option("-t, --join-token", m_joinToken, "Join the meeting with App Privilege using a token");
 
-    m_app.add_option("--sdk-key", m_sdkKey, "Zoom Meeting SDK Key");
-    m_app.add_option("--sdk-secret", m_sdkSecret, "Zoom Meeting SDK Secret");
+    m_app.add_option("--client-id", m_clientId, "Zoom Meeting Client ID")->required();
+    m_app.add_option("--client-secret", m_clientSecret, "Zoom Meeting Client Secret")->required();
 
     m_app.add_flag("-s, --start", m_isMeetingStart, "Start a Zoom Meeting");
 
-    m_rawRecordCmd->add_flag("-v, --video", m_useRawVideo, "Record Raw Video Data");
-    m_rawRecordCmd->add_flag("-a, --audio", m_useRawAudio, "Record Raw Audio Data");
+    m_rawRecordAudioCmd->add_option("-f, --file", m_audioFile, "Output PCM audio file");
+    m_rawRecordAudioCmd->add_option("-d, --dir", m_audioDir, "Audio Output Directory");
+    m_rawRecordAudioCmd->add_flag("-s, --separate-participants", m_separateParticipantAudio, "Output to separate PCM files for each participant");
+
+    m_rawRecordVideoCmd->add_option("-f, --file", m_videoFile, "Output YUV video file");
+    m_rawRecordVideoCmd->add_option("-d, --dir", m_videoDir, "Video Output Directory");
+
 }
 
 int Config::read(int ac, char **av) {
     try {
         m_app.parse(ac, av);
+    } catch( const CLI::CallForHelp &e ){
+        exit(m_app.exit(e));
     } catch (const CLI::ParseError& err) {
         return m_app.exit(err);
-    }
+    } 
 
     if (!m_joinUrl.empty())
         parseUrl(m_joinUrl);
 
    return 0;
-}
-
-const string& Config::sdkKey() const {
-    return m_sdkKey;
-}
-
-const string& Config::sdkSecret() const {
-    return m_sdkSecret;
 }
 
 bool Config::parseUrl(const string& join_url) {
@@ -79,16 +78,44 @@ bool Config::parseUrl(const string& join_url) {
     return true;
 }
 
+const string& Config::clientId() const {
+    return m_clientId;
+}
+
+const string& Config::clientSecret() const {
+    return m_clientSecret;
+}
+
 bool Config::useRawRecording() const {
-    return m_useRawAudio || m_useRawVideo;
+    return useRawAudio() || useRawVideo();
 }
 
 bool Config::useRawAudio() const {
-    return m_useRawAudio;
+    return !m_audioFile.empty() || m_separateParticipantAudio;
 }
 
 bool Config::useRawVideo() const {
-    return m_useRawVideo;
+    return !m_videoFile.empty();
+}
+
+const string& Config::audioDir() const {
+    return m_audioDir;
+}
+
+const string& Config::audioFile() const {
+        return m_audioFile;
+
+}
+
+const string& Config::videoDir() const {
+    return m_videoDir;
+}
+const string& Config::videoFile() const {
+    return m_videoFile;
+}
+
+bool Config::separateParticipantAudio() const {
+    return m_separateParticipantAudio;
 }
 
 bool Config::isMeetingStart() const {

@@ -10,16 +10,7 @@ SDKError Zoom::config(int ac, char** av) {
     return SDKERR_SUCCESS;
 }
 
-SDKError Zoom::init() {
-    SDKError err;
-
-    auto key = m_config.sdkKey();
-    auto secret = m_config.sdkSecret();
-
-    if (key.empty() || secret.empty()) {
-        return SDKERR_UNINITIALIZE;
-    }
-
+SDKError Zoom::init() { 
     InitParam initParam;
 
     auto host = m_config.zoomHost().c_str();
@@ -32,8 +23,11 @@ SDKError Zoom::init() {
     initParam.enableLogByDefault = true;
     initParam.enableGenerateDump = true;
 
-    err = InitSDK(initParam);
-    if (hasError(err)) return err;
+    auto err = InitSDK(initParam);
+    if (hasError(err)) {
+        Log::error("InitSDK failed");
+        return err;
+    }
 
     return createServices();
 }
@@ -64,18 +58,7 @@ SDKError Zoom::createServices() {
             auto recordingEvent = new MeetingRecordingCtrlEvent(onRecordingPrivilegeChanged);
             recordingCtrl->SetEvent(recordingEvent);
 
-            auto e = recordingCtrl->CanStartRawRecording();
-            string action = " local recording privilege";
-
-            if (e == SDKERR_SUCCESS) {
-                e = startRawRecording();
-                action = "has" + action;
-            } else {
-                e = recordingCtrl->RequestLocalRecordingPrivilege();
-                action = "request" + action;
-            }
-
-            hasError(e, action);
+            startRawRecording();
         }
     };
 
@@ -87,23 +70,36 @@ SDKError Zoom::createServices() {
 }
 
 SDKError Zoom::auth() {
-   SDKError err;
+   SDKError err{SDKERR_UNINITIALIZE};
+
+   auto id = m_config.clientId();
+   auto secret = m_config.clientSecret();
+
+    if (id.empty()) {
+        Log::error("Client ID cannot be blank");
+        return err;
+    }
+    
+
+    if (secret.empty()) {
+        Log::error("Client Secret cannot be blank");
+        return err;
+    }
 
     err = CreateAuthService(&m_authService);
     if (hasError(err)) return err;
 
     function<void()> onAuth = [&]() {
-        auto err = startOrJoin();
-        if(hasError(err)) {
-            error("failed to start or join a meeting");
-            exit(err);
-        }
+        auto e = isMeetingStart() ? start() : join();
+        string action = isMeetingStart() ? "start" : "join";
+        
+        if(hasError(e, action + " a meeting")) exit(e);
     };
 
     err = m_authService->SetEvent(new AuthServiceEvent(onAuth));
     if (hasError(err)) return err;
 
-    generateJWT(m_config.sdkKey(), m_config.sdkSecret());
+    generateJWT(m_config.clientId(), m_config.clientSecret());
 
     AuthContext ctx;
     ctx.jwt_token =  m_jwt.c_str();
@@ -126,16 +122,29 @@ void Zoom::generateJWT(const string& key, const string& secret) {
 }
 
 SDKError Zoom::join() {
-    auto id = m_config.meetingId();
+    SDKError err{SDKERR_UNINITIALIZE};
+
+    auto mid = m_config.meetingId();
     auto password = m_config.password();
     auto displayName = m_config.displayName();
 
-    if (id.empty() || password.empty()) {
-        cerr << "you must provide an id and password to join a meeting" << endl;
-        return SDKERR_UNINITIALIZE;
+
+    if (mid.empty()) {
+        Log::error("Meeting ID cannot be blank");
+        return err;
     }
 
-    auto meetingNumber = stoull(id);
+    if (password.empty()) {
+        Log::error("Meeting Password cannot be blank");
+        return err;
+    }
+
+    if (displayName.empty()) {
+        Log::error("Display Name cannot be blank");
+        return err;
+    }
+
+    auto meetingNumber = stoull(mid);
     auto userName = displayName.c_str();
     auto psw = password.c_str();
 
@@ -185,7 +194,7 @@ SDKError Zoom::start() {
 }
 
 SDKError Zoom::leave() {
-    if (!m_meetingService)
+    if (!m_meetingService) 
         return SDKERR_UNINITIALIZE;
 
     auto status = m_meetingService->GetMeetingStatus();
@@ -214,35 +223,29 @@ SDKError Zoom::clean() {
     return CleanUPSDK();
 }
 
-SDKError Zoom::startOrJoin() {
-    SDKError err;
-
-    if (isMeetingStart())
-        err = start();
-    else
-        err = join();
-
-    return err;
-}
-
 SDKError Zoom::startRawRecording() {
-    SDKError err;
-
     auto recCtrl = m_meetingService->GetMeetingRecordingController();
-    if (recCtrl->CanStartRawRecording() != SDKERR_SUCCESS)
-        return SDKERR_UNAUTHENTICATION;
+
+    SDKError err = recCtrl->CanStartRawRecording();
+
+    if (hasError(err)) {
+        Log::info("requesting local recording privilege");
+        return recCtrl->RequestLocalRecordingPrivilege();;
+    }
 
     err = recCtrl->StartRawRecording();
     if (hasError(err, "start raw recording"))
         return err;
 
     if (m_config.useRawVideo()) {
-        err = createRenderer(&m_videoHelper, m_videoSource);
-        if (hasError(err, "create raw video renderer"))
-            return err;
-
+        if (!m_videoSource) {
+            err = createRenderer(&m_videoHelper, m_videoSource);
+            if (hasError(err, "create raw video renderer"))
+                return err;
+        }
+        
         auto participantCtl = m_meetingService->GetMeetingParticipantsController();
-        int uid = participantCtl->GetParticipantsList()->GetItem(0);
+        int uid = participantCtl->GetParticipantsList()->GetItem(1);
 
         m_videoHelper->setRawDataResolution(ZoomSDKResolution_720P);
         err = m_videoHelper->subscribe(uid, RAW_DATA_TYPE_VIDEO);
@@ -255,8 +258,11 @@ SDKError Zoom::startRawRecording() {
         if (!m_audioHelper)
             return SDKERR_UNINITIALIZE;
 
-        if (!m_audioSource)
-            m_audioSource = new ZoomSDKAudioRawDataDelegate();
+        if (!m_audioSource) {
+            m_audioSource = new ZoomSDKAudioRawDataDelegate(!m_config.separateParticipantAudio());
+            m_audioSource->setDir(m_config.audioDir());
+            m_audioSource->setFilename(m_config.audioFile());
+        }
 
         err = m_audioHelper->subscribe(m_audioSource);
         if (hasError(err, "subscribe to raw audio"))
@@ -278,18 +284,6 @@ bool Zoom::isMeetingStart() {
     return m_config.isMeetingStart();
 }
 
-void Zoom::success(const string& message) {
-    cout << Emoji::checkMark << " " << message << endl;
-}
-
-void Zoom::info(const std::string& message) {
-    cout << Emoji::hourglass << " " << message << endl;
-
-}
-
-void Zoom::error(const string& message) {
-    cerr << Emoji::crossMark << " " << message << endl;
-}
 
 bool Zoom::hasError(const SDKError e, const string& action) {
     auto isError = e != SDKERR_SUCCESS;
@@ -298,12 +292,10 @@ bool Zoom::hasError(const SDKError e, const string& action) {
         if (isError) {
             stringstream ss;
             ss << "failed to " << action << " with status " << e;
-            Zoom::error(ss.str());
+            Log::error(ss.str());
         } else {
-            Zoom::success(action);
+            Log::success(action);
         }
     }
     return isError;
 }
-
-
