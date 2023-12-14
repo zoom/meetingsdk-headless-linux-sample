@@ -8,8 +8,8 @@ variety of use cases through an intuitive CLI or through a configuration file.
 1. [Docker](https://www.docker.com/)
 1. [Zoom Account](https://support.zoom.us/hc/en-us/articles/207278726-Plan-Types-)
 1. [Zoom Meeting SDK Credentials](#config:-sdk-credentials) (Instructions below)
-    1. SDK Key
-    1. SDK Secret
+    1. Client ID
+    1. Client Secret
 
 ## 1. Clone the Repository
 
@@ -37,10 +37,9 @@ cp sample.config.ini config.ini
 
 #### Fill out the config.ini
 
-Here, you can set any of the CLI options so that the bot has them available when it runs. Start by adding your SDK Key
-and SDK Secret in the relevant fields.
+Here, you can set any of the CLI options so that the bot has them available when it runs. Start by adding your Client ID and Client Secret in the relevant fields.
 
-**At a minimum, you need to provide an SDK Key and SDK Secret along with information about the meeting you would like to join.**
+**At a minimum, you need to provide an Client ID and Client Secret along with information about the meeting you would like to join.**
 
 You can either provide a Join URL, or a Meeting ID and Password.
 
@@ -65,7 +64,7 @@ Click the "Build App" button at the top and choose to "Meeting SDK" application.
 2. Choose whether to list your app on the marketplace or not
 3. Click "Create"
 4. Fill out the prerequisite information
-5. Copy the SDK Key and SDK Secret to the config.ini file
+5. Copy the Client ID and Client Secret to the config.ini file
 
 For more information, you can follow [this guide](https://developers.zoom.us/docs/meeting-sdk/developer-accounts/)
 
