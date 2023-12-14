@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
+# directory for CMake output
 BUILD=build
+
+# directory for application output
+mkdir -p out
 
 setup-pulseaudio() {
   # Enable dbus
@@ -44,7 +48,7 @@ build() {
 }
 
 run() {
-  exec ./"$BUILD"/zoomsdk --help;
+  exec ./"$BUILD"/zoomsdk;
 }
 
 build && run;

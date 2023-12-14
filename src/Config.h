@@ -22,25 +22,30 @@ class Config {
     const string& m_version = "1.0.2";
     const string& m_name = "Zoom Meeting SDK for Linux Sample v" + m_version;
 
-
     CLI::App m_app;
 
-    CLI::App* m_rawRecordCmd;
-    bool m_useRawAudio;
-    bool m_useRawVideo;
+    CLI::App* m_rawRecordAudioCmd;
+    string m_audioDir="out";
+    string m_audioFile;
+    bool m_separateParticipantAudio;
 
-    bool m_isMeetingStart;
+    CLI::App* m_rawRecordVideoCmd;
+    string m_videoDir="out";
+    string m_videoFile;
 
     string m_joinUrl;
     string m_meetingId;
     string m_password;
-    string m_displayName;
+    string m_displayName = "Zoom Meeting Bot";
 
     string m_clientId;
     string m_clientSecret;
 
-    string m_zoomHost;
+    string m_zoomHost = "https://zoom.us";
     string m_joinToken;
+
+    bool m_isMeetingStart;
+
 
 public:
     Config();
@@ -62,9 +67,19 @@ public:
     const string& zoomHost() const;
 
     bool isMeetingStart() const;
+
     bool useRawRecording() const;
+
     bool useRawAudio() const;
     bool useRawVideo() const;
+
+    const string& audioFile() const;
+    const string& videoFile() const;
+
+    const string& audioDir() const;
+    const string& videoDir() const;
+
+    bool separateParticipantAudio() const;
 };
 
 
