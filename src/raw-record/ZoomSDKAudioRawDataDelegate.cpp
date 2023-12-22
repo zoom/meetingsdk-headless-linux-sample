@@ -32,6 +32,13 @@ void ZoomSDKAudioRawDataDelegate::onOneWayAudioRawDataReceived(AudioRawData* dat
     writeToFile(path.str(), data);
 }
 
+void ZoomSDKAudioRawDataDelegate::onShareAudioRawDataReceived(AudioRawData* data) {
+    stringstream ss;
+    ss << "Shared Audio Raw data: " << data->GetBufferLen() << "b at " << data->GetSampleRate() << "Hz";
+    Log::info(ss.str());
+}
+
+
 void ZoomSDKAudioRawDataDelegate::writeToFile(const string &path, AudioRawData *data)
 {
     static std::ofstream file;

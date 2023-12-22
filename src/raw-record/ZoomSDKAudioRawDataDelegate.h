@@ -27,6 +27,7 @@ public:
 
     void onMixedAudioRawDataReceived(AudioRawData* data) override;
     void onOneWayAudioRawDataReceived(AudioRawData* data, uint32_t node_id) override;
+    void onShareAudioRawDataReceived(AudioRawData* data) override;
 };
 
 
