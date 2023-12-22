@@ -19,4 +19,4 @@ void MeetingRecordingCtrlEvent::onLocalRecordingPrivilegeRequestStatus(RequestLo
 
 void MeetingRecordingCtrlEvent::onLocalRecordingPrivilegeRequested(IRequestLocalRecordingPrivilegeHandler* handler) {}
 
-
+void MeetingRecordingCtrlEvent::onCloudRecordingStorageFull(time_t gracePeriodDate){}

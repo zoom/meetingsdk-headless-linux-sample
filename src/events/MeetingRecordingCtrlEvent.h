@@ -47,6 +47,12 @@ public:
      */
     void onLocalRecordingPrivilegeRequested(IRequestLocalRecordingPrivilegeHandler* handler) override;
 
+    /**
+     * Fires when Cloud Storage is full
+     * @param gracePeriodDate UTC milliseconds grace period to continue using storage
+    */
+    void onCloudRecordingStorageFull(time_t gracePeriodDate) override;
+
 };
 
 
