@@ -245,7 +245,7 @@ SDKError Zoom::startRawRecording() {
         }
         
         auto participantCtl = m_meetingService->GetMeetingParticipantsController();
-        int uid = participantCtl->GetParticipantsList()->GetItem(1);
+        int uid = participantCtl->GetParticipantsList()->GetItem(0);
 
         m_videoHelper->setRawDataResolution(ZoomSDKResolution_720P);
         err = m_videoHelper->subscribe(uid, RAW_DATA_TYPE_VIDEO);
