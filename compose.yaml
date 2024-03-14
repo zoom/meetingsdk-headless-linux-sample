@@ -1,11 +1,6 @@
 services:
-  dev:
-    container_name: zoomsdk-build
+  zoomsdk: &zoomsdk
     build: ./
     platform: linux/amd64
     volumes:
      - .:/tmp/meeting-sdk-linux-sample
-    ports:
-      - 2222:22
-    cap_add:
-      - sys_ptrace

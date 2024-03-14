@@ -3,7 +3,7 @@
 SDKError Zoom::config(int ac, char** av) {
     auto status = m_config.read(ac, av);
     if (status) {
-        cerr << "failed to read configuration" << endl;
+        Log::error("failed to read configuration");
         return SDKERR_INTERNAL_ERROR;
     }
 
@@ -28,7 +28,7 @@ SDKError Zoom::init() {
         Log::error("InitSDK failed");
         return err;
     }
-
+    
     return createServices();
 }
 
@@ -40,61 +40,31 @@ SDKError Zoom::createServices() {
     err = CreateSettingService(&m_settingService);
     if (hasError(err)) return err;
 
-    function<void()> onJoin = [&]() {
-        auto* reminderController = m_meetingService->GetMeetingReminderController();
-        reminderController->SetEvent(new MeetingReminderEvent());
-
-        if (m_config.useRawRecording()) {
-
-            auto recordingCtrl = m_meetingService->GetMeetingRecordingController();
-
-            function<void(bool)> onRecordingPrivilegeChanged = [&](bool canRec) {
-                if (canRec)
-                    startRawRecording();
-                else
-                    stopRawRecording();
-            };
-
-            auto recordingEvent = new MeetingRecordingCtrlEvent(onRecordingPrivilegeChanged);
-            recordingCtrl->SetEvent(recordingEvent);
-
-            startRawRecording();
-        }
-    };
-
     auto meetingServiceEvent = new MeetingServiceEvent();
     meetingServiceEvent->setOnMeetingJoin(onJoin);
 
     err = m_meetingService->SetEvent(meetingServiceEvent);
-    return err;
+    if (hasError(err)) return err;
+
+    return CreateAuthService(&m_authService);
 }
 
 SDKError Zoom::auth() {
-   SDKError err{SDKERR_UNINITIALIZE};
+    SDKError err{SDKERR_UNINITIALIZE};
 
-   auto id = m_config.clientId();
-   auto secret = m_config.clientSecret();
+    auto id = m_config.clientId();
+    auto secret = m_config.clientSecret();
 
     if (id.empty()) {
         Log::error("Client ID cannot be blank");
         return err;
     }
-    
+
 
     if (secret.empty()) {
         Log::error("Client Secret cannot be blank");
         return err;
     }
-
-    err = CreateAuthService(&m_authService);
-    if (hasError(err)) return err;
-
-    function<void()> onAuth = [&]() {
-        auto e = isMeetingStart() ? start() : join();
-        string action = isMeetingStart() ? "start" : "join";
-        
-        if(hasError(e, action + " a meeting")) exit(e);
-    };
 
     err = m_authService->SetEvent(new AuthServiceEvent(onAuth));
     if (hasError(err)) return err;
@@ -159,11 +129,18 @@ SDKError Zoom::join() {
     param.vanityID = nullptr;
     param.customer_key = nullptr;
     param.webinarToken = nullptr;
-    param.isVideoOff = false;
-    param.isAudioOff = false;
+    param.isVideoOff = true;
+    param.isAudioOff = true;
 
-    if (!m_config.joinToken().empty())
+    if (!m_config.zak().empty()) {
+        Log::success("used ZAK token");
+        param.userZAK = m_config.zak().c_str();
+    }
+
+    if (!m_config.joinToken().empty()) {
+        Log::success("used App Privilege token");
         param.app_privilege_token = m_config.joinToken().c_str();
+    }
 
     if (m_config.useRawAudio()) {
         auto* audioSettings = m_settingService->GetAudioSettings();
@@ -230,7 +207,7 @@ SDKError Zoom::startRawRecording() {
 
     if (hasError(err)) {
         Log::info("requesting local recording privilege");
-        return recCtrl->RequestLocalRecordingPrivilege();;
+        return recCtrl->RequestLocalRecordingPrivilege();
     }
 
     err = recCtrl->StartRawRecording();
@@ -238,14 +215,12 @@ SDKError Zoom::startRawRecording() {
         return err;
 
     if (m_config.useRawVideo()) {
-        if (!m_videoSource) {
-            err = createRenderer(&m_videoHelper, m_videoSource);
-            if (hasError(err, "create raw video renderer"))
-                return err;
-        }
+        err = createRenderer(&m_videoHelper, m_videoSource);
+        if (hasError(err, "create raw video renderer"))
+            return err;
         
         auto participantCtl = m_meetingService->GetMeetingParticipantsController();
-        int uid = participantCtl->GetParticipantsList()->GetItem(1);
+        auto uid = participantCtl->GetParticipantsList()->GetItem(0);
 
         m_videoHelper->setRawDataResolution(ZoomSDKResolution_720P);
         err = m_videoHelper->subscribe(uid, RAW_DATA_TYPE_VIDEO);

@@ -18,6 +18,13 @@ public:
      * @param handle reminder handler for the reminder type
      */
     void onReminderNotify(IMeetingReminderContent* content, IMeetingReminderHandler* handle) override;
+
+    /**
+     * Callback event of the enable reminder dialog show.
+     * @param content The detail content in the reminder dialog. For more details, see IMeetingEnableReminderHandler enum.
+     * @param handle A pointer to the IMeetingReminderHandler. For more details, see IMeetingEnableReminderHandler.
+    */
+    void onEnableReminderNotify(IMeetingReminderContent* content, IMeetingEnableReminderHandler* handle) override {};
 };
 
 
