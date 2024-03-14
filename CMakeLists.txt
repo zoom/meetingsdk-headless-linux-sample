@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.20.2)
-project(meeting_sdk_linux_sample)
+project(meeting_sdk_linux_sample VERSION 1.0.1)
+
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_COMPILER /usr/bin/g++)
@@ -19,8 +20,7 @@ pkg_check_modules(deps REQUIRED IMPORTED_TARGET glib-2.0)
 
 include_directories(${ZOOM_SDK}/h)
 link_directories(${ZOOM_SDK} ${ZOOM_SDK})
-link_directories(${ZOOM_SDK} ${ZOOM_SDK}/qt_libs)
-link_directories(${ZOOM_SDK} ${ZOOM_SDK}/qt_libs/Qt/lib)
+link_directories(${ZOOM_SDK} ${ZOOM_SDK}/qt_libs/**)
 
 add_executable(zoomsdk src/main.cpp
         src/Zoom.cpp

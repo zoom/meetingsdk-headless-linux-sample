@@ -58,6 +58,40 @@ class Zoom : public Singleton<Zoom> {
     SDKError createServices();
     void generateJWT(const string& key, const string& secret);
 
+    /**
+     * Callback fired when the SDK authenticates the credentials
+    */
+    function<void()> onAuth = [&]() {
+        auto e = isMeetingStart() ? start() : join();
+        string action = isMeetingStart() ? "start" : "join";
+        
+        if(hasError(e, action + " a meeting")) exit(e);
+    };
+
+    /**
+     * Callback fires when the bot joins the meeting
+    */
+    function<void()> onJoin = [&]() {
+        auto* reminderController = m_meetingService->GetMeetingReminderController();
+        reminderController->SetEvent(new MeetingReminderEvent());
+
+        if (m_config.useRawRecording()) {
+            auto recordingCtrl = m_meetingService->GetMeetingRecordingController();
+
+            function<void(bool)> onRecordingPrivilegeChanged = [&](bool canRec) {
+                if (canRec)
+                    startRawRecording();
+                else
+                    stopRawRecording();
+            };
+
+            auto recordingEvent = new MeetingRecordingCtrlEvent(onRecordingPrivilegeChanged);
+            recordingCtrl->SetEvent(recordingEvent);
+
+            startRawRecording();
+        }
+    };
+
 public:
     SDKError init();
     SDKError auth();
