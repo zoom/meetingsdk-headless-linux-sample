@@ -7,6 +7,8 @@
 #include <functional>
 #include "auth_service_interface.h"
 
+#include "../util/Log.h"
+
 using namespace std;
 using namespace ZOOMSDK;
 
@@ -19,7 +21,7 @@ class AuthServiceEvent : public IAuthServiceEvent  {
     function<void(LOGINSTATUS, IAccountInfo*, LoginFailReason)> m_onLoginReturnWithReason;
 
 public:
-    AuthServiceEvent(function<void()>& onAuth);
+    AuthServiceEvent(function<void()>& onAuth) : m_onAuth(onAuth) {};
     ~AuthServiceEvent() {};
 
     /**
@@ -34,33 +36,28 @@ public:
      * @param pAccountInfo Account Info that is only valid when ret == LOGINRET_SUCCESS
      * @param reason Reason for login failure that is only valid when ret == LOGIN_FAILED
      */
-    void onLoginReturnWithReason(LOGINSTATUS ret, IAccountInfo* pAccountInfo, LoginFailReason reason) override;
+    void onLoginReturnWithReason(LOGINSTATUS ret, IAccountInfo* pAccountInfo, LoginFailReason reason) override {};
 
     /**
      * Logout result callback.
      */
-    void onLogout() override;
+    void onLogout() override {};
 
     /**
      * callback used when the Zoom identity has expired
      * when triggered, please re-login or generate a new zoom access token via REST Api.
      */
-    void onZoomIdentityExpired() override;
+    void onZoomIdentityExpired() override {};
 
     /**
      * callback used when Zoom authentication identity will be expired in 10 minutes
      * when triggered please re-auth
      */
-    void onZoomAuthIdentityExpired() override;
+    void onZoomAuthIdentityExpired() override {};
 
     /* Setters for Callbacks */
     void setOnAuth(const function<void()> callback);
     void setOnAuthenticationReturn(const function<void(AuthResult)>& callback);
-    void setOnLogout(const function<void()>& callback);
-    void setOnZoomIdentityExpired(const function<void()>& callback);
-    void setOnZoomAuthIdentityExpired(const function<void()>& callback);
-    void setOnLoginReturnWithReason(const function<void(LOGINSTATUS, IAccountInfo*, LoginFailReason)>& callback);
-
 };
 
 

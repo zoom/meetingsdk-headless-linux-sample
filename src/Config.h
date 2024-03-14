@@ -37,6 +37,7 @@ class Config {
     string m_meetingId;
     string m_password;
     string m_displayName = "Zoom Meeting Bot";
+    string m_zak;
 
     string m_clientId;
     string m_clientSecret;
@@ -63,6 +64,7 @@ public:
 
     const string& clientId() const;
     const string& clientSecret() const;
+    const string& zak() const;
 
     const string& zoomHost() const;
 

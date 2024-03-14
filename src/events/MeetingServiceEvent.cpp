@@ -1,13 +1,14 @@
 #include "MeetingServiceEvent.h"
 
-MeetingServiceEvent::MeetingServiceEvent() {
-
-}
 void MeetingServiceEvent::onMeetingStatusChanged(MeetingStatus status, int iResult) {
     if (m_onMeetingStatusChanged) {
         m_onMeetingStatusChanged(status, iResult);
         return;
     }
+
+    stringstream ss;
+    ss << iResult;
+    auto result = ss.str();
 
     switch (status) {
         case MEETING_STATUS_CONNECTING:
@@ -28,7 +29,7 @@ void MeetingServiceEvent::onMeetingStatusChanged(MeetingStatus status, int iResu
             if (m_onMeetingEnd) m_onMeetingEnd();
             return;
         case MEETING_STATUS_FAILED:
-            Log::error("failed to connect to the meeting");
+            Log::error("failed to connect to the meeting with MeetingFailCode " + result);
             break;
         case MEETING_STATUS_WAITINGFORHOST:
             Log::info("waiting for the meeting to start");
@@ -39,26 +40,6 @@ void MeetingServiceEvent::onMeetingStatusChanged(MeetingStatus status, int iResu
     }
 }
 
-void MeetingServiceEvent::onMeetingParameterNotification(const MeetingParameter *meeting_param) {
-    if (m_onMeetingParameterNotification)
-        m_onMeetingParameterNotification(meeting_param);
-}
-
-void MeetingServiceEvent::onMeetingStatisticsWarningNotification(StatisticsWarningType type) {
-    if (m_onMeetingStatisticsWarningNotification)
-        m_onMeetingStatisticsWarningNotification(type);
-}
-
-void MeetingServiceEvent::onSuspendParticipantsActivities() {
-    if (m_onSuspendParticipantsActivities)
-        m_onSuspendParticipantsActivities();
-}
-
-void MeetingServiceEvent::onAICompanionActiveChangeNotice(bool bActive) {
-    if (m_onAICompanionActiveChangeNotice)
-        m_onAICompanionActiveChangeNotice(bActive);
-}
-
 void MeetingServiceEvent::setOnMeetingJoin(const function<void()>& callback) {
     m_onMeetingJoin = callback;
 }
@@ -67,23 +48,6 @@ void MeetingServiceEvent::setOnMeetingEnd(const function<void()>& callback) {
     m_onMeetingEnd = callback;
 }
 
-void MeetingServiceEvent::setOnMeetingParameterNotification(const function<void(const MeetingParameter*)>& callback) {
-    m_onMeetingParameterNotification = callback;
-}
-
-void MeetingServiceEvent::setOnMeetingStatisticsWarningNotification(const function<void(StatisticsWarningType)>& callback) {
-    m_onMeetingStatisticsWarningNotification = callback;
-}
-
-void MeetingServiceEvent::setOnSuspendParticipantsActivities(const function<void()>& callback) {
-    m_onSuspendParticipantsActivities = callback;
-}
-
-void
-MeetingServiceEvent::setOnAiCompanionActiveChangeNotice(const function<void(bool)>& callback) {
-    m_onAICompanionActiveChangeNotice = callback;
-}
-
-void MeetingServiceEvent::setOnMeetingStatusChanged(function<void(MeetingStatus, int)>& callback) {
+void MeetingServiceEvent::setOnMeetingStatusChanged(const function<void(MeetingStatus, int)>& callback) {
     m_onMeetingStatusChanged = callback;
 }
