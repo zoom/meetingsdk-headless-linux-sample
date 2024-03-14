@@ -5,12 +5,13 @@ Config::Config() :
         m_rawRecordAudioCmd(m_app.add_subcommand("RawAudio", "Enable Audio Raw Recording")),
         m_rawRecordVideoCmd(m_app.add_subcommand("RawVideo", "Enable Video Raw Recording"))
     {
-
     m_app.set_config("--config", "config.ini");
 
     m_app.add_option("-m, --meeting-id", m_meetingId,"Meeting ID of the meeting");
     m_app.add_option("-p, --password", m_password,"Password of the meeting");
-    m_app.add_option("-n, --display-name", m_displayName,"Display Name for the meeting")->capture_default_str();;
+    m_app.add_option("-n, --display-name", m_displayName,"Display Name for the meeting")->capture_default_str();
+
+    m_app.add_option("-z,--zak", m_zak, "ZAK Token to join the meeting");
 
     m_app.add_option("--host", m_zoomHost, "Host Domain for the Zoom Meeting")->capture_default_str();
     m_app.add_option("-u, --join-url", m_joinUrl, "Join or Start a Meeting URL");
@@ -21,11 +22,11 @@ Config::Config() :
 
     m_app.add_flag("-s, --start", m_isMeetingStart, "Start a Zoom Meeting");
 
-    m_rawRecordAudioCmd->add_option("-f, --file", m_audioFile, "Output PCM audio file");
+    m_rawRecordAudioCmd->add_option("-f, --file", m_audioFile, "Output PCM audio file")->required();
     m_rawRecordAudioCmd->add_option("-d, --dir", m_audioDir, "Audio Output Directory");
     m_rawRecordAudioCmd->add_flag("-s, --separate-participants", m_separateParticipantAudio, "Output to separate PCM files for each participant");
 
-    m_rawRecordVideoCmd->add_option("-f, --file", m_videoFile, "Output YUV video file");
+    m_rawRecordVideoCmd->add_option("-f, --file", m_videoFile, "Output YUV video file")->required();
     m_rawRecordVideoCmd->add_option("-d, --dir", m_videoDir, "Video Output Directory");
 
 }
@@ -72,7 +73,9 @@ bool Config::parseUrl(const string& join_url) {
     if (m_meetingId.empty()) return false;
 
     ada::url_search_params search(url->get_search());
-    if (!search.has("pwd")) return false;
+    if (!search.has("pwd")) 
+        return false;
+
     m_password = move(*search.get(string_view("pwd")));
 
     return true;
@@ -84,6 +87,11 @@ const string& Config::clientId() const {
 
 const string& Config::clientSecret() const {
     return m_clientSecret;
+}
+
+const string &Config::zak() const
+{
+    return m_zak;
 }
 
 bool Config::useRawRecording() const {
