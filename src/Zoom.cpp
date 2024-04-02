@@ -130,7 +130,7 @@ SDKError Zoom::join() {
     param.customer_key = nullptr;
     param.webinarToken = nullptr;
     param.isVideoOff = true;
-    param.isAudioOff = true;
+    param.isAudioOff = false;
 
     if (!m_config.zak().empty()) {
         Log::success("used ZAK token");
@@ -161,8 +161,8 @@ SDKError Zoom::start() {
     StartParam4NormalUser  normalUser;
     normalUser.vanityID = nullptr;
     normalUser.customer_key = nullptr;
-    normalUser.isAudioOff = false;
-    normalUser.isVideoOff = false;
+    normalUser.isAudioOff = true;
+    normalUser.isVideoOff = true;
 
     err = m_meetingService->Start(startParam);
     hasError(err, "start meeting");
