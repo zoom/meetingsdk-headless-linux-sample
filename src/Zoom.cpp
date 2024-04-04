@@ -129,7 +129,7 @@ SDKError Zoom::join() {
     param.vanityID = nullptr;
     param.customer_key = nullptr;
     param.webinarToken = nullptr;
-    param.isVideoOff = true;
+    param.isVideoOff = false;
     param.isAudioOff = false;
 
     if (!m_config.zak().empty()) {
@@ -197,6 +197,8 @@ SDKError Zoom::clean() {
     if (m_videoHelper)
         m_videoHelper->unSubscribe();
 
+    delete m_videoSource;
+
     return CleanUPSDK();
 }
 
@@ -215,13 +217,19 @@ SDKError Zoom::startRawRecording() {
         return err;
 
     if (m_config.useRawVideo()) {
+        if (!m_videoSource)
+            m_videoSource = new ZoomSDKRendererDelegate();
+
         err = createRenderer(&m_videoHelper, m_videoSource);
         if (hasError(err, "create raw video renderer"))
             return err;
+
+        m_videoSource->setDir(m_config.videoDir());
+        m_videoSource->setFilename(m_config.videoFile());
         
         auto participantCtl = m_meetingService->GetMeetingParticipantsController();
         auto uid = participantCtl->GetParticipantsList()->GetItem(0);
-
+  
         m_videoHelper->setRawDataResolution(ZoomSDKResolution_720P);
         err = m_videoHelper->subscribe(uid, RAW_DATA_TYPE_VIDEO);
         if (hasError(err, "subscribe to raw video"))

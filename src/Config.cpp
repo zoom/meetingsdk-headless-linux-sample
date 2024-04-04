@@ -5,7 +5,7 @@ Config::Config() :
         m_rawRecordAudioCmd(m_app.add_subcommand("RawAudio", "Enable Audio Raw Recording")),
         m_rawRecordVideoCmd(m_app.add_subcommand("RawVideo", "Enable Video Raw Recording"))
     {
-    m_app.set_config("--config", "config.ini");
+    m_app.set_config("--config", "config.toml");
 
     m_app.add_option("-m, --meeting-id", m_meetingId,"Meeting ID of the meeting");
     m_app.add_option("-p, --password", m_password,"Password of the meeting");
