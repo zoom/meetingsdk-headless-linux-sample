@@ -32,10 +32,10 @@ to [Get your Zoom Meeting SDK Credentials](#get-your-zoom-meeting-sdk-credential
 #### Copy the sample config file
 
 ```bash
-cp sample.config.ini config.ini
+cp sample.config.toml config.toml
 ```
 
-#### Fill out the config.ini
+#### Fill out the config.toml
 
 Here, you can set any of the CLI options so that the bot has them available when it runs. Start by adding your Client ID and Client Secret in the relevant fields.
 
@@ -51,7 +51,7 @@ Run the Docker container in order to build and run the bot
 docker compose up
 ```
 
-That's it! You can use the --help argument in [entry.sh](bin/entry.sh) to see the available CLI and config.ini options.
+That's it! You can use the --help argument in [entry.sh](bin/entry.sh) to see the available CLI and config.toml options.
 ___
 ### Get your Zoom Meeting SDK Credentials
 
@@ -64,7 +64,7 @@ Click the "Build App" button at the top and choose to "Meeting SDK" application.
 2. Choose whether to list your app on the marketplace or not
 3. Click "Create"
 4. Fill out the prerequisite information
-5. Copy the Client ID and Client Secret to the config.ini file
+5. Copy the Client ID and Client Secret to the config.toml file
 
 For more information, you can follow [this guide](https://developers.zoom.us/docs/meeting-sdk/developer-accounts/)
 
@@ -72,7 +72,7 @@ For more information, you can follow [this guide](https://developers.zoom.us/doc
 
 Remember, credentials should never be stored in a plaintext file for production use cases.
 
-> :warning: **Never commit config.ini to version control:** The file likely contains Zoom SDK and Zoom OAuth
+> :warning: **Never commit config.toml to version control:** The file likely contains Zoom SDK and Zoom OAuth
 > Credentials
 
 ### Testing
