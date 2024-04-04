@@ -25,8 +25,8 @@
 #include "events/MeetingReminderEvent.h"
 #include "events/MeetingRecordingCtrlEvent.h"
 
-#include "raw-record/ZoomSDKRendererDelegate.h"
-#include "raw-record/ZoomSDKAudioRawDataDelegate.h"
+#include "raw_record/ZoomSDKRendererDelegate.h"
+#include "raw_record/ZoomSDKAudioRawDataDelegate.h"
 
 using namespace std;
 using namespace jwt;

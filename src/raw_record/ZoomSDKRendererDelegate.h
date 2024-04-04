@@ -15,7 +15,7 @@ using namespace ZOOMSDK;
 
 class ZoomSDKRendererDelegate : public IZoomSDKRendererDelegate {
     string m_dir = "out";
-    string m_filename = "test.yuv";
+    string m_filename = "meeting-video.yuv";
 public:
     void writeToFile(const string& path, YUVRawDataI420* data);
 
@@ -23,8 +23,8 @@ public:
     void setFilename(const string& filename);
 
     void onRawDataFrameReceived(YUVRawDataI420* data) override;
-    void onRawDataStatusChanged(RawDataStatus status) override;
-    void onRendererBeDestroyed() override;
+    void onRawDataStatusChanged(RawDataStatus status) override {};
+    void onRendererBeDestroyed() override {};
 };
 
 

@@ -37,10 +37,10 @@ add_executable(zoomsdk src/main.cpp
         src/events/MeetingReminderEvent.h
         src/events/MeetingRecordingCtrlEvent.cpp
         src/events/MeetingRecordingCtrlEvent.h
-        src/raw-record/ZoomSDKAudioRawDataDelegate.cpp
-        src/raw-record/ZoomSDKAudioRawDataDelegate.h
-        src/raw-record/ZoomSDKRendererDelegate.cpp
-        src/raw-record/ZoomSDKRendererDelegate.h
+        src/raw_record/ZoomSDKAudioRawDataDelegate.cpp
+        src/raw_record/ZoomSDKAudioRawDataDelegate.h
+        src/raw_record/ZoomSDKRendererDelegate.cpp
+        src/raw_record/ZoomSDKRendererDelegate.h
 )
 
 target_include_directories(zoomsdk PRIVATE ${JWT_CPP_INCLUDE_DIRS})
