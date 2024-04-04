@@ -1,31 +1,11 @@
 #include "ZoomSDKRendererDelegate.h"
 
-void ZoomSDKRendererDelegate::setDir(const string &dir)
-{
-    m_dir = dir;
-}
-
-void ZoomSDKRendererDelegate::setFilename(const string &filename)
-{
-    m_filename = filename;
-}
-
 void ZoomSDKRendererDelegate::onRawDataFrameReceived(YUVRawDataI420 *data)
 {
-    Log::info("OnRawDataFrameReceived");
-
     stringstream path;
     path << m_dir << "/" << m_filename;
 
     writeToFile(path.str(), data);
-}
-
-void ZoomSDKRendererDelegate::onRawDataStatusChanged(RawDataStatus status) {
-    cout << "onRawDataStatusChanged() " << status << endl;
-}
-
-void ZoomSDKRendererDelegate::onRendererBeDestroyed() {
-    cout << "onRendererBeDestroyed() " << endl;
 }
 
 void ZoomSDKRendererDelegate::writeToFile(const string &path, YUVRawDataI420 *data)
@@ -52,4 +32,14 @@ void ZoomSDKRendererDelegate::writeToFile(const string &path, YUVRawDataI420 *da
 
 	file.close();
 	file.flush();
+}
+
+void ZoomSDKRendererDelegate::setDir(const string &dir)
+{
+    m_dir = dir;
+}
+
+void ZoomSDKRendererDelegate::setFilename(const string &filename)
+{
+    m_filename = filename;
 }

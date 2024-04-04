@@ -5,7 +5,7 @@ build
 out
 
 # ignore the config file
-config.ini
+config.toml
 
 # ignore the SDK files added to the project
 lib/zoomsdk/h
