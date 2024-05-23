@@ -65,6 +65,18 @@ public:
     */
     void onStartCloudRecordingRequested(IRequestStartCloudRecordingHandler* handler) override {};
 
+    /**
+     * Callback event received only by the host when a user requests to enable and start smart cloud recording.
+	 * @param handler A pointer to the IRequestEnableAndStartSmartRecordingHandler
+    */
+    void onEnableAndStartSmartRecordingRequested(IRequestEnableAndStartSmartRecordingHandler* handler) override {};
+
+    /**
+     * Callback event received when you call EnableSmartRecording. You can use the handler to confirm or cancel enabling the smart recording.
+	 * @param handler A pointer to the ISmartRecordingEnableActionHandler
+    */
+    void onSmartRecordingEnableActionCallback(ISmartRecordingEnableActionHandler* handler) override {};
+
 };
 
 
