@@ -27,6 +27,7 @@ RUN apt-get update  \
     libxcb-xfixes0 \
     libxcb-xtest0 \
     libxfixes3 \
+    linux-libc-dev \
     pkgconf \
     tar \
     unzip \
@@ -50,7 +51,6 @@ RUN git clone --depth 1 https://github.com/Microsoft/vcpkg.git \
     && ./vcpkg/bootstrap-vcpkg.sh -disableMetrics \
     && ln -s /opt/vcpkg/vcpkg /usr/local/bin/vcpkg \
     && vcpkg install vcpkg-cmake
-
 
 FROM deps AS build
 
