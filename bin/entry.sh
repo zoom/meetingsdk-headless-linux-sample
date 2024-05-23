@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Google Cloud
+export GOOGLE_APPLICATION_CREDENTIALS="$PWD/service-account.json"
+export GRPC_DEFAULT_SSL_ROOTS_FILE_PATH="$PWD/roots.pem"
+
 # directory for CMake output
 BUILD=build
 
@@ -33,8 +37,13 @@ setup-pulseaudio() {
 }
 
 build() {
-  # Configure CMake
-  [[ ! -d "$BUILD" ]] && { cmake -B "$BUILD" -S . --preset debug || exit; }
+  # Configure CMake if this is the first run
+  [[ ! -d "$BUILD" ]] && { 
+    curl -Lo roots.pem https://pki.google.com/roots.pem;
+    cmake -B "$BUILD" -S . --preset debug || exit; 
+    }
+
+
 
   # Rename the shared library
   LIB="lib/zoomsdk/libmeetingsdk.so"
