@@ -1,5 +1,8 @@
 #include "ZoomSDKAudioRawDataDelegate.h"
 
+
+
+
 ZoomSDKAudioRawDataDelegate::ZoomSDKAudioRawDataDelegate(bool useMixedAudio) : m_useMixedAudio(useMixedAudio)
 {
 
@@ -8,6 +11,7 @@ ZoomSDKAudioRawDataDelegate::ZoomSDKAudioRawDataDelegate(bool useMixedAudio) : m
 void ZoomSDKAudioRawDataDelegate::onMixedAudioRawDataReceived(AudioRawData *data) {
     if (!m_useMixedAudio) return;
 
+    thread(transcribeThread, data)
     if (m_dir.empty())
         return Log::error("Output Directory cannot be blank");
     

@@ -2,19 +2,9 @@
   "name": "meeting-sdk-linux-sample",
   "version": "1",
   "dependencies": [
-
     "ada-url",
     "cli11",
     "jwt-cpp",
-
-     {
-      "name": "google-cloud-cpp",
-      "default-features": false,
-      "features": [
-        "speech",
-        "language"
-      ]
-    }
-
+    "websocketpp"
   ]
 }

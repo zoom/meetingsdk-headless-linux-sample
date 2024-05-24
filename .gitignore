@@ -20,10 +20,6 @@ lib/zoomsdk/*.md
 # YUV files
 *.yuv
 
-# Google Cloud Platform
-service-account.json
-roots.pem
-
 # MacOS
 .DS_Store
 
