@@ -11,7 +11,5 @@ client-secret=""
 join-url=""
 
 [RawAudio] 
-file="meeting-audio.pcm"
-
-#[RawVideo]
-#file="meeting-video.yuv"
+transcribe=true
+rev_token=""
