@@ -28,8 +28,6 @@ Config::Config() :
     m_rawRecordAudioCmd->add_flag("-t, --transcribe", m_transcribe, "Transcribe audio to text");
     m_rawRecordAudioCmd->add_flag("--rev_token", m_rev_token, "Rev.ai access token");
 
-
-
     m_rawRecordVideoCmd->add_option("-f, --file", m_videoFile, "Output YUV video file")->required();
     m_rawRecordVideoCmd->add_option("-d, --dir", m_videoDir, "Video Output Directory");
 
@@ -115,7 +113,7 @@ bool Config::transcribe() const
     return m_transcribe;
 }
 
-string Config::revToken() const
+const string& Config::revToken() const
 {
     return m_rev_token;
 }

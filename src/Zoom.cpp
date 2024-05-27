@@ -198,7 +198,6 @@ SDKError Zoom::clean() {
         m_videoHelper->unSubscribe();
 
     delete m_videoSource;
-
     return CleanUPSDK();
 }
 
@@ -242,7 +241,7 @@ SDKError Zoom::startRawRecording() {
             return SDKERR_UNINITIALIZE;
 
         if (!m_audioSource) {
-            m_audioSource = new ZoomSDKAudioRawDataDelegate(!m_config.separateParticipantAudio());
+            m_audioSource = new ZoomSDKAudioRawDataDelegate();
             m_audioSource->setDir(m_config.audioDir());
             m_audioSource->setFilename(m_config.audioFile());
         }

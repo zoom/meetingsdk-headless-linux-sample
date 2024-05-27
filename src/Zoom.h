@@ -11,6 +11,8 @@
 #include "Config.h"
 #include "util/Singleton.h"
 #include "util/Log.h"
+#include "util/websocket.h"
+
 
 #include "zoom_sdk.h"
 #include "rawdata/zoom_rawdata_api.h"
@@ -93,6 +95,7 @@ class Zoom : public Singleton<Zoom> {
     };
 
 public:
+    Zoom() {};
     SDKError init();
     SDKError auth();
     SDKError config(int ac, char** av);

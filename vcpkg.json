@@ -5,6 +5,6 @@
     "ada-url",
     "cli11",
     "jwt-cpp",
-    "websocketpp"
+    "boost-beast"
   ]
 }

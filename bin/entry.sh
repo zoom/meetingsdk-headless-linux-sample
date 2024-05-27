@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 
-# Google Cloud
-export GOOGLE_APPLICATION_CREDENTIALS="$PWD/service-account.json"
-export GRPC_DEFAULT_SSL_ROOTS_FILE_PATH="$PWD/roots.pem"
+set -m
 
 # directory for CMake output
-BUILD=build
+BUILD=sdk-build
 
 # directory for application output
 mkdir -p out
@@ -39,9 +37,8 @@ setup-pulseaudio() {
 build() {
   # Configure CMake if this is the first run
   [[ ! -d "$BUILD" ]] && { 
-    curl -Lo roots.pem https://pki.google.com/roots.pem;
-    cmake -B "$BUILD" -S . --preset debug || exit; 
-    }
+    cmake -B "$BUILD" -S . --preset debug || exit;
+  }
 
 
 
@@ -57,7 +54,7 @@ build() {
 }
 
 run() {
-  exec ./"$BUILD"/zoomsdk;
+  exec ./"$BUILD"/zoomsdk
 }
 
 build && run;

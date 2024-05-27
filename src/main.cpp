@@ -1,34 +1,86 @@
-#include "google/cloud/speech/v1/speech_client.h"
-#include "google/cloud/project.h"
-#include <iostream>
+#include <csignal>
+#include <glib.h>
+#include "Config.h"
+#include "Zoom.h"
 
-using namespace std;
 
-int main(int argc, char* argv[]) try {
-  auto constexpr kDefaultUri = "gs://cloud-samples-data/speech/hello.wav";
-  if (argc > 2) {
-    std::cerr << "Usage: " << argv[0] << " [gcs-uri]\n"
-              << "  The gcs-uri must be in gs://... format. It defaults to "
-              << kDefaultUri << "\n";
-    return 1;
-  }
-  auto uri = std::string{argc == 2 ? argv[1] : kDefaultUri};
+/**
+ *  Callback fired atexit()
+ */
+void onExit() {
+    auto* zoom = &Zoom::getInstance();
+    zoom->leave();
+    zoom->clean();
 
-  cout << uri << endl;
-
-  namespace speech = ::google::cloud::speech_v1;
-  auto client = speech::SpeechClient(speech::MakeSpeechConnection());
-
-   google::cloud::speech::v1::RecognitionConfig config;
-  config.set_language_code("en-US");
-  google::cloud::speech::v1::RecognitionAudio audio;
-  audio.set_uri(uri);
-  auto response = client.Recognize(config, audio);
-  if (!response) throw std::move(response).status();
-  std::cout << response->DebugString() << "\n";
- 
-  return 0;
-} catch (google::cloud::Status const& status) {
-  std::cerr << "google::cloud::Status thrown: " << status << "\n";
-  return 1;
+    cout << "exiting..." << endl;
 }
+
+/**
+ * Callback fired when a signal is trapped
+ * @param signal type of signal
+ */
+void onSignal(int signal) {
+    onExit();
+    _Exit(signal);
+}
+
+
+/**
+ * Callback for glib event loop
+ * @param data event data
+ * @return always TRUE
+ */
+gboolean onTimeout (gpointer data) {
+    return TRUE;
+}
+
+/**
+ * Run the Zoom Meeting Bot
+ * @param argc argument count
+ * @param argv argument vector
+ * @return SDKError
+ */
+SDKError run(int argc, char** argv) {
+    SDKError err{SDKERR_SUCCESS};
+    auto* zoom = &Zoom::getInstance();
+
+    signal(SIGINT, onSignal);
+    signal(SIGTERM, onSignal);
+
+    atexit(onExit);
+
+    // read the CLI and config.ini file
+    err = zoom->config(argc, argv);
+    if (Zoom::hasError(err, "configure"))
+        return err;
+
+    // initialize the Zoom SDK
+    err = zoom->init();
+    if(Zoom::hasError(err, "initialize"))
+        return err;
+
+    // authorize with the Zoom SDK
+    err = zoom->auth();
+    if (Zoom::hasError(err, "authorize"))
+        return err;
+
+    return err;
+}
+
+int main(int argc, char **argv) {
+    // Run the Meeting Bot
+    SDKError err = run(argc, argv);
+
+    if (Zoom::hasError(err)) 
+        return err;
+
+    // Use an event loop to receive callbacks
+    GMainLoop* eventLoop;
+    eventLoop = g_main_loop_new(NULL, FALSE);
+    g_timeout_add(100, onTimeout, eventLoop);
+    g_main_loop_run(eventLoop);
+
+    return err;
+}
+
+
