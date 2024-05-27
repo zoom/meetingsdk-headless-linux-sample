@@ -11,7 +11,6 @@
 #include "Config.h"
 #include "util/Singleton.h"
 #include "util/Log.h"
-#include "util/websocket.h"
 
 
 #include "zoom_sdk.h"

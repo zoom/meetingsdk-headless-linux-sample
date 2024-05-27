@@ -90,7 +90,7 @@ void* SocketServer::run() {
 
             /* Wait for next data packet. */
 
-            auto ret = read(dataSocket, buffer, BUFFER_SIZE);
+            auto ret = read(dataSocket, buffer, 5);
             if (ret == -1) {
                 cerr << "failed to read socket" << endl;
                 return nullptr;
@@ -102,13 +102,7 @@ void* SocketServer::run() {
 
 
             /* Handle commands. */
-
-            cout << "READ: " << buffer << endl;
-
-            ready = strcmp("READY", buffer) != 0;
-            if (!ready) continue;
-
-            writeStr("ACK");
+            ready = true;
 
         }
         return nullptr;
@@ -125,7 +119,7 @@ bool SocketServer::isReady() {
 int SocketServer::writeBuf(const char* buf, int len) {
     auto ret = write(dataSocket, buf, len);
     if (ret == -1) {
-        perror("write");
+        cerr << "failed to write data" << endl;
         exit(EXIT_FAILURE);
     }
 
@@ -139,7 +133,6 @@ int SocketServer::writeStr(const string& str) {
 
 void SocketServer::cleanup () {
     if (access(SOCKET_NAME, F_OK) != -1) {
-        fprintf(stdout, "Cleanup socket\n");
         unlink(SOCKET_NAME);
     }
 }
