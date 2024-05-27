@@ -1,29 +1,8 @@
 #include "ZoomSDKAudioRawDataDelegate.h"
 
-
-
-
-ZoomSDKAudioRawDataDelegate::ZoomSDKAudioRawDataDelegate(bool useMixedAudio) : m_useMixedAudio(useMixedAudio)
-{
-
-}
-
 void ZoomSDKAudioRawDataDelegate::onMixedAudioRawDataReceived(AudioRawData *data) {
-    if (!m_useMixedAudio) return;
-
-    thread(transcribeThread, data)
-    if (m_dir.empty())
-        return Log::error("Output Directory cannot be blank");
-    
-
-    if (m_filename.empty()) 
-        m_filename = "test.pcm";
-    
-
-    stringstream path;
-    path << m_dir << "/" << m_filename;
-
-    writeToFile(path.str(), data);
+    auto len = data->GetBufferLen();
+    if (len <= 0) return;
 }
 
 

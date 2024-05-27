@@ -78,6 +78,7 @@ public:
     bool useRawVideo() const;
 
     bool transcribe() const;
+    const string& revToken() const;
 
     const string& audioFile() const;
     const string& videoFile() const;
