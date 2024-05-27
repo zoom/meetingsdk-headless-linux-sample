@@ -1,5 +1,6 @@
 services:
   zoomsdk: &zoomsdk
+    stdin_open: true # docker run -i
     build: ./
     platform: linux/amd64
     volumes:
