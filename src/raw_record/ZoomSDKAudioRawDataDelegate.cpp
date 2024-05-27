@@ -1,8 +1,18 @@
 #include "ZoomSDKAudioRawDataDelegate.h"
 
+
+ZoomSDKAudioRawDataDelegate::ZoomSDKAudioRawDataDelegate(bool useMixedAudio) : m_useMixedAudio(useMixedAudio) {
+    server.start();
+}
+
 void ZoomSDKAudioRawDataDelegate::onMixedAudioRawDataReceived(AudioRawData *data) {
-    auto len = data->GetBufferLen();
-    if (len <= 0) return;
+    if (!m_useMixedAudio) return;
+
+    cout << "writing to socket" << endl;
+
+    //char buff[3] = "hi";
+    server.writeBuf(data->GetBuffer(), data->GetBufferLen());
+
 }
 
 

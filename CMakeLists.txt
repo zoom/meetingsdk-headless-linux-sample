@@ -40,8 +40,8 @@ add_executable(zoomsdk src/main.cpp
         src/raw_record/ZoomSDKAudioRawDataDelegate.h
         src/raw_record/ZoomSDKRendererDelegate.cpp
         src/raw_record/ZoomSDKRendererDelegate.h
-        src/util/websocket.cpp
-        src/util/websocket.h
+        src/util/SocketServer.h
+        src/util/SocketServer.cpp
 )
 
 target_include_directories(zoomsdk PRIVATE ${JWT_CPP_INCLUDE_DIRS})

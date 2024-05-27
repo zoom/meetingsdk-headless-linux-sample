@@ -3,7 +3,7 @@
 set -m
 
 # directory for CMake output
-BUILD=sdk-build
+BUILD=build
 
 # directory for application output
 mkdir -p out
@@ -54,7 +54,10 @@ build() {
 }
 
 run() {
-  exec ./"$BUILD"/zoomsdk
+  exec ./"$BUILD"/zoomsdk &
+  node index.js
+
+  fg %1
 }
 
 build && run;
