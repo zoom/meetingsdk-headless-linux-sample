@@ -8,10 +8,8 @@ ZoomSDKAudioRawDataDelegate::ZoomSDKAudioRawDataDelegate(bool useMixedAudio) : m
 void ZoomSDKAudioRawDataDelegate::onMixedAudioRawDataReceived(AudioRawData *data) {
     if (!m_useMixedAudio) return;
 
-    cout << "writing to socket" << endl;
-
     //char buff[3] = "hi";
-    server.writeBuf(data->GetBuffer(), data->GetBufferLen());
+        server.writeBuf(data->GetBuffer(), data->GetBufferLen());
 
 }
 

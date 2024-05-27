@@ -40,8 +40,6 @@ build() {
     cmake -B "$BUILD" -S . --preset debug || exit;
   }
 
-
-
   # Rename the shared library
   LIB="lib/zoomsdk/libmeetingsdk.so"
   [[ ! -f "${LIB}.1" ]] && cp "$LIB"{,.1}

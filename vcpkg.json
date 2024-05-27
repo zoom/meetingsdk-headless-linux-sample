@@ -4,7 +4,6 @@
   "dependencies": [
     "ada-url",
     "cli11",
-    "jwt-cpp",
-    "boost-beast"
+    "jwt-cpp"
   ]
 }

@@ -29,6 +29,7 @@ RUN apt-get update  \
     libxfixes3 \
     linux-libc-dev \
     nodejs \
+    npm \
     pkgconf \
     tar \
     unzip \
@@ -52,8 +53,6 @@ RUN git clone --depth 1 https://github.com/Microsoft/vcpkg.git \
     && ./vcpkg/bootstrap-vcpkg.sh -disableMetrics \
     && ln -s /opt/vcpkg/vcpkg /usr/local/bin/vcpkg \
     && vcpkg install vcpkg-cmake
-
-RUN npm i && node-gyp build
 
 FROM deps AS build
 
