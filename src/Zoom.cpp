@@ -241,7 +241,10 @@ SDKError Zoom::startRawRecording() {
             return SDKERR_UNINITIALIZE;
 
         if (!m_audioSource) {
-            m_audioSource = new ZoomSDKAudioRawDataDelegate(!m_config.separateParticipantAudio());
+            auto mixedAudio = !m_config.separateParticipantAudio();
+            auto transcribe = m_config.transcribe();
+
+            m_audioSource = new ZoomSDKAudioRawDataDelegate(mixedAudio, transcribe);
             m_audioSource->setDir(m_config.audioDir());
             m_audioSource->setFilename(m_config.audioFile());
         }

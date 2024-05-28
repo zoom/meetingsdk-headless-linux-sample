@@ -13,6 +13,7 @@
     "postprepare": "node scripts/gen-secrets.cjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.21.1",
     "@zoom/appssdk": "^0.16.8",
     "assemblyai": "^4.4.3",
     "axios": "^1.6.2",
@@ -24,8 +25,13 @@
     "express-validator": "^6.14.0",
     "helmet": "^5.0.2",
     "http-errors": "^2.0.0",
+    "install": "^0.13.0",
+    "marked": "^12.0.2",
     "morgan": "~1.10.0",
-    "pug": "^3.0.2"
+    "npm": "^10.8.0",
+    "pug": "^3.0.2",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.17.6",

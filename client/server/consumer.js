@@ -1,8 +1,9 @@
 import * as net from "node:net";
+import Anthropic from '@anthropic-ai/sdk';
 import { transcriber } from './transcribe.js'
-import debug from "debug";
-import {appName} from "../config.js";
+import {appName, anthropicKey} from "../config.js";
 
+import debug from "debug";
 const dbg = debug(`${appName}:consumer`);
 
 const socketPath = "/tmp/meeting.sock";
@@ -30,8 +31,6 @@ socketClient.on("error", (err) => {
     else dbg("connection error", code)
 });
 
-
-
 const run = async() => {
     try {
         connect();
@@ -54,5 +53,6 @@ const run = async() => {
 }
 
 export default {
-    run
+    run,
+    transcriber
 }

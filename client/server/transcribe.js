@@ -26,18 +26,6 @@ transcriber.on('close', (code, reason) =>
     dbg('Session closed:', code, reason)
 )
 
-transcriber.on('transcript', (transcript) => {
-    if (!transcript.text) {
-        return
-    }
-
-    if (transcript.message_type === 'PartialTranscript') {
-        console.log('Partial:', transcript.text)
-    } else {
-        console.log('Final:', transcript.text)
-    }
-});
-
 export default {
     transcriber
 }

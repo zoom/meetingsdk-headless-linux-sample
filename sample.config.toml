@@ -10,6 +10,5 @@ client-secret=""
 # Use a join-url or a meeting-id and password
 join-url=""
 
-[RawAudio] 
+[RawAudio]
 transcribe=true
-rev_token=""

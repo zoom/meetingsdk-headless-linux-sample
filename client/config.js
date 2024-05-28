@@ -47,6 +47,7 @@ export const appName = config.APP_NAME || 'zoom-app';
 export const redirectUri = zoomApp.redirectUrl;
 
 export const assemblyAiKey = config.ASSEMBLY_AI_KEY;
+export const anthropicKey = config.ANTHROPIC_KEY
 
 // HTTP
 export const port = config.PORT || '3000';

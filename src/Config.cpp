@@ -100,7 +100,7 @@ bool Config::useRawRecording() const {
 }
 
 bool Config::useRawAudio() const {
-    return !m_audioFile.empty() || m_separateParticipantAudio;
+    return !m_audioFile.empty() || m_separateParticipantAudio || m_transcribe;
 }
 
 bool Config::useRawVideo() const {

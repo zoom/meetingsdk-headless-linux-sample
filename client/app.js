@@ -72,7 +72,7 @@ const headers = {
             styleSrc: ["'self'"],
             scriptSrc: ["'self'", 'https://appssdk.zoom.us/sdk.min.js'],
             imgSrc: ["'self'", `https://${redirectHost}`],
-            'connect-src': 'self',
+            'connect-src': ["'self'", `wss://${redirectHost}`],
             'base-uri': 'self',
             'form-action': 'self',
         },
@@ -112,10 +112,6 @@ app.use((err, req, res, next) => {
 
 // redirect users to the home page if they get a 404 route
 app.get('*', (req, res) => res.redirect('/'));
-
-
-// start socket server and transcription processs
-await consumer.run();
 
 // start serving
 start(app, port).catch(async (e) => {

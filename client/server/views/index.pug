@@ -1,9 +1,10 @@
 extends layout
 
 block content
-    h1=title
     if isZoom
-        p Welcome to your Zoom App
+        p#transcript
+        hr
+        h3#sentiment
     else
         p You're viewing your Zoom App through the browser.&nbsp;
             a(href=`/install`) Click Here
