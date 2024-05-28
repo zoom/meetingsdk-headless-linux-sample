@@ -2,6 +2,9 @@
 
 set -m
 
+# Google Cloud
+export GOOGLE_APPLICATION_CREDENTIALS="service-account.json"
+
 # directory for CMake output
 BUILD=build
 
@@ -53,7 +56,7 @@ build() {
 
 run() {
   exec ./"$BUILD"/zoomsdk &
-  node index.js
+  node client
 
   fg %1
 }

@@ -1,5 +1,7 @@
 FROM --platform=linux/amd64 ubuntu:22.04 AS base
 
+SHELL ["/bin/bash", "-c"]
+
 ENV project=meeting-sdk-linux-sample
 ENV cwd=/tmp/$project
 
@@ -28,8 +30,6 @@ RUN apt-get update  \
     libxcb-xtest0 \
     libxfixes3 \
     linux-libc-dev \
-    nodejs \
-    npm \
     pkgconf \
     tar \
     unzip \
@@ -40,6 +40,10 @@ RUN apt-get install -y libasound2 libasound2-plugins alsa alsa-utils alsa-oss
 
 # Install Pulseaudio
 RUN apt-get install -y  pulseaudio pulseaudio-utils
+
+
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+RUN apt-get install -y nodejs
 
 ## Install Tini
 ENV TINI_VERSION v0.19.0

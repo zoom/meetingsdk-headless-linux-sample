@@ -1,0 +1,14 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "author": "Max Mansfield <max.mansfield@zoom.us>",
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/speech": "^6.6.0",
+    "assemblyai": "^4.4.3",
+    "chalk": "^5.3.0"
+  }
+}
