@@ -24,6 +24,9 @@ lib/zoomsdk/*.md
 # YUV files
 *.yuv
 
+# Node
+node_modules
+
 # MacOS
 .DS_Store
 

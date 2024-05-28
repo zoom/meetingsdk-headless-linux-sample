@@ -56,7 +56,7 @@ build() {
 
 run() {
   exec ./"$BUILD"/zoomsdk &
-  node client
+  npm --prefix=client run dev
 
   fg %1
 }
