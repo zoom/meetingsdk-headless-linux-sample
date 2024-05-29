@@ -5,6 +5,9 @@ SHELL ["/bin/bash", "-c"]
 ENV project=meeting-sdk-linux-sample
 ENV cwd=/tmp/$project
 
+WORKDIR $cwd
+
+
 #  Install Dependencies
 RUN apt-get update  \
     && apt-get install -y \

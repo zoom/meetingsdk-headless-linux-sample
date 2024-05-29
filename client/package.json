@@ -52,10 +52,11 @@
     "lint-staged": "^12.3.4",
     "nodemon": "^3.0.1",
     "prettier": "^2.5.1",
+    "@jridgewell/sourcemap-codec": "^1.4.15",
+    "@rollup/plugin-terser": "^0.4.4",
     "rollup": "^2.70.1",
     "rollup-plugin-copy": "^3.4.0",
-    "rollup-plugin-delete": "^2.0.0",
-    "rollup-plugin-terser": "^7.0.2"
+    "rollup-plugin-delete": "^2.0.0"
   },
   "nodemonConfig": {
     "quiet": true,
