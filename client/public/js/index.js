@@ -1,23 +1,20 @@
 import zoomSdk from '@zoom/appssdk';
-import {marked} from "marked";
+import { marked } from 'marked';
 import socket from './lib/socket.js';
 
-const onUpdate = ({ transcript, sentiment}) => {
+const onUpdate = ({ transcript, sentiment }) => {
     let transcriptEl = document.getElementById('transcript');
     let sentimentEl = document.getElementById('sentiment');
 
+    if (transcript) transcriptEl.innerHTML = transcript;
 
-    if (transcript)
-        transcriptEl.innerHTML = transcript;
+    if (sentiment) sentimentEl.innerHTML = marked.parse(sentiment);
+};
 
-    if (sentiment)
-        sentimentEl.innerHTML = marked.parse(sentiment)
-}
-
-(async ()=>{
+(async () => {
     try {
         const configResponse = await zoomSdk.config({
-            capabilities: [ 'getMeetingUUID' ],
+            capabilities: ['getMeetingUUID'],
         });
 
         console.debug('Zoom JS SDK Configuration', configResponse);
@@ -26,9 +23,7 @@ const onUpdate = ({ transcript, sentiment}) => {
 
         socket.on('update', onUpdate);
         socket.emit('join', { meetingUUID });
-
     } catch (e) {
         console.error(e);
     }
 })();
-

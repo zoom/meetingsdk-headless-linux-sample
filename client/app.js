@@ -14,8 +14,6 @@ import authRoutes from './server/routes/auth.js';
 
 import { appName, port, redirectUri } from './config.js';
 
-import consumer from './server/consumer.js'
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /* App Config */

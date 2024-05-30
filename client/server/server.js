@@ -1,7 +1,7 @@
 import http from 'http';
 import debug from 'debug';
 import { appName } from '../config.js';
-import { startWS } from "./socket.js";
+import { startWS } from './socket.js';
 
 const dbg = debug(`${appName}:http`);
 
@@ -14,7 +14,7 @@ export async function start(app, port) {
     // Create HTTP server
     const server = http.createServer(app);
 
-    dbg("Starting WebSocket server");
+    dbg('Starting WebSocket server');
     await startWS(server);
 
     // let the user know when we're serving

@@ -3,6 +3,11 @@
 This sample demonstrates how you can run the Zoom Meeting SDK for Linux within a Docker container and configure it for a
 variety of use cases through an intuitive CLI or through a configuration file.
 
+
+** Important**
+
+For the `ai-dev-summit branch` you must also set up the Zoom App using the README.md file found in the [client](client) folder,
+
 ## Prerequisites
 
 1. [Docker](https://www.docker.com/)
@@ -10,6 +15,8 @@ variety of use cases through an intuitive CLI or through a configuration file.
 1. [Zoom Meeting SDK Credentials](#config:-sdk-credentials) (Instructions below)
     1. Client ID
     1. Client Secret
+1. [AssemblyAI Key](https://www.assemblyai.com/)
+1. [Anthropic Key](https://www.anthropic.com/)
 
 ## 1. Clone the Repository
 

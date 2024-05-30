@@ -1,11 +1,10 @@
 import { Server } from 'socket.io';
-import debug from "debug";
-import {anthropicKey, appName} from "../config.js";
-import consumer from "./consumer.js";
-import Anthropic from "@anthropic-ai/sdk";
+import debug from 'debug';
+import { anthropicKey, appName } from '../config.js';
+import consumer from './consumer.js';
+import Anthropic from '@anthropic-ai/sdk';
 
 const dbg = debug(`${appName}:socket-io`);
-const rooms = new Map();
 
 const prompt = `
 Perform semantic analysis on each of the transcripts that I send.
@@ -21,10 +20,10 @@ between 0.0 and +inf. Unlike score, magnitude is not normalized; each expression
 (both positive and negative) contributes to the text's magnitude (so longer text blocks may have greater magnitudes).
  
 You must only respond with the score and magnitude in title case. No explanations or other words should be included. 
-If not enough information is returned to determine sentiment you should return 0 values for the the analysis.`
+If not enough information is returned to determine sentiment you should return 0 values for the the analysis.`;
 
 const claude = new Anthropic({
-    apiKey: anthropicKey
+    apiKey: anthropicKey,
 });
 
 function err(socket, code, message) {
@@ -47,65 +46,74 @@ function onConnection(io) {
     return (socket) => {
         let room;
 
-        socket.on('join', ({meetingUUID}) => {
+        socket.on('join', ({ meetingUUID }) => {
             if (!checkUUID(socket, meetingUUID)) return;
 
-            dbg("connected")
+            dbg('connected');
 
             if (!room) {
                 room = meetingUUID;
                 socket.join(room);
             }
 
-            let curText, lastText, res;
-            curText = lastText = res = "";
+            let curText, lastText, result;
+            curText = lastText = result = '';
 
             consumer.transcriber.on('transcript', async (transcript) => {
                 if (!transcript.text) {
-                    return
+                    return;
                 }
 
-                io.to(room).emit('update', {transcript: transcript.text});
+                if (curText.length > 32 || lastText.length === 0 && curText.length === 0)
+                    io.to(room).emit('update', { transcript: transcript.text });
 
-                if (transcript.message_type !== 'PartialTranscript') {
+                const str = ' ' + transcript.text;
+
+                if (transcript.message_type === 'PartialTranscript') {
+                    curText += str
+                } else {
+                    lastText += str
 
 
-                    let stream = await claude.messages.stream({
-                        system: prompt,
-                        messages: [{role: 'user', content: transcript.text}],
-                        model: 'claude-3-haiku-20240307',
-                        max_tokens: 1024,
-                    }).on('text', (sentiment) => {
-                        res += sentiment
-                        io.to(room).emit('update', {sentiment: res});
-                    })
+
+                    let stream = await claude.messages
+                        .stream({
+                            system: prompt,
+                            messages: [
+                                { role: 'user', content: transcript.text },
+                            ],
+                            model: 'claude-3-haiku-20240307',
+                            max_tokens: 1024,
+                        })
+                        .on('text', (sentiment) => {
+                            result += sentiment;
+                            io.to(room).emit('update', { sentiment: result });
+                        });
 
                     const message = await stream.finalMessage();
                     if (message) {
-                        res = "";
-                        io.to(room).emit('update', {sentiment: message.text});
+                        result = '';
+                        io.to(room).emit('update', { sentiment: message.text });
                     }
-
                 }
             });
         });
-    }
+    };
 }
 
-    /**
-     * Initialize the socket.io websocket handler
-     * @param {Server} server HTTP Server
-     */
-    export async function startWS(server) {
-        const io = new Server(server, {
-            transports: ['websocket'],
-            maxHttpBufferSize: 1e8,
-            pingTimeout: 60000,
-        });
+/**
+ * Initialize the socket.io websocket handler
+ * @param {Server} server HTTP Server
+ */
+export async function startWS(server) {
+    const io = new Server(server, {
+        transports: ['websocket'],
+        maxHttpBufferSize: 1e8,
+        pingTimeout: 60000,
+    });
 
-        // start socket server and transcription processs
-        await consumer.run();
+    // start socket server and transcription processs
+    await consumer.run();
 
-        io.on('connection', onConnection(io));
-    }
-
+    io.on('connection', onConnection(io));
+}
