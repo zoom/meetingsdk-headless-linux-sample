@@ -8,7 +8,7 @@ ZoomSDKAudioRawDataDelegate::ZoomSDKAudioRawDataDelegate(bool useMixedAudio = tr
 void ZoomSDKAudioRawDataDelegate::onMixedAudioRawDataReceived(AudioRawData *data) {
     if (!m_useMixedAudio || !m_transcribe) return;
 
-        server.writeBuf(data->GetBuffer(), data->GetBufferLen());
+    server.writeBuf(data->GetBuffer(), data->GetBufferLen());
 
 }
 

@@ -161,8 +161,8 @@ SDKError Zoom::start() {
     StartParam4NormalUser  normalUser;
     normalUser.vanityID = nullptr;
     normalUser.customer_key = nullptr;
-    normalUser.isAudioOff = true;
-    normalUser.isVideoOff = true;
+    normalUser.isAudioOff = false;
+    normalUser.isVideoOff = false;
 
     err = m_meetingService->Start(startParam);
     hasError(err, "start meeting");
@@ -197,42 +197,64 @@ SDKError Zoom::clean() {
     if (m_videoHelper)
         m_videoHelper->unSubscribe();
 
-    delete m_videoSource;
+    delete m_renderDelegate;
     return CleanUPSDK();
 }
 
 SDKError Zoom::startRawRecording() {
-    auto recCtrl = m_meetingService->GetMeetingRecordingController();
+    auto recCtl = m_meetingService->GetMeetingRecordingController();
 
-    SDKError err = recCtrl->CanStartRawRecording();
+    SDKError err = recCtl->CanStartRawRecording();
 
     if (hasError(err)) {
         Log::info("requesting local recording privilege");
-        return recCtrl->RequestLocalRecordingPrivilege();
+        return recCtl->RequestLocalRecordingPrivilege();
     }
 
-    err = recCtrl->StartRawRecording();
+    err = recCtl->StartRawRecording();
     if (hasError(err, "start raw recording"))
         return err;
 
     if (m_config.useRawVideo()) {
-        if (!m_videoSource)
-            m_videoSource = new ZoomSDKRendererDelegate();
+        if (!m_renderDelegate) {
+            m_renderDelegate = new ZoomSDKRendererDelegate();
+            m_videoSource = new ZoomSDKVideoSource();
+        }
 
-        err = createRenderer(&m_videoHelper, m_videoSource);
+        err = createRenderer(&m_videoHelper, m_renderDelegate);
         if (hasError(err, "create raw video renderer"))
             return err;
 
-        m_videoSource->setDir(m_config.videoDir());
-        m_videoSource->setFilename(m_config.videoFile());
+        m_renderDelegate->setDir(m_config.videoDir());
+        m_renderDelegate->setFilename(m_config.videoFile());
         
         auto participantCtl = m_meetingService->GetMeetingParticipantsController();
         auto uid = participantCtl->GetParticipantsList()->GetItem(0);
-  
+
         m_videoHelper->setRawDataResolution(ZoomSDKResolution_720P);
         err = m_videoHelper->subscribe(uid, RAW_DATA_TYPE_VIDEO);
         if (hasError(err, "subscribe to raw video"))
             return err;
+
+/*        auto* videoSourceHelper = GetRawdataVideoSourceHelper();
+        if (!videoSourceHelper) {
+            Log::error("Initializing Video Source Helper");
+            return SDKERR_UNINITIALIZE;
+        }
+
+        err = videoSourceHelper->setExternalVideoSource(m_videoSource);
+        if (hasError(err, "set video source"))
+            return err;
+
+        auto* videoSettings = m_settingService->GetVideoSettings();
+        videoSettings->EnableAutoTurnOffVideoWhenJoinMeeting(false);
+
+       auto* sender = m_videoSource->getSender();
+
+        auto* videoCtl = m_meetingService->GetMeetingVideoController();
+        err = videoCtl->UnmuteVideo();
+        if (hasError(err,"unmute video"))
+            return err;*/
     }
 
     if (m_config.useRawAudio()) {

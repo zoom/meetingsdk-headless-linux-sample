@@ -19,6 +19,7 @@
 
 #include "meeting_service_components/meeting_audio_interface.h"
 #include "meeting_service_components/meeting_participants_ctrl_interface.h"
+#include "meeting_service_components/meeting_video_interface.h"
 #include "setting_service_interface.h"
 
 #include "events/AuthServiceEvent.h"
@@ -28,6 +29,8 @@
 
 #include "raw_record/ZoomSDKRendererDelegate.h"
 #include "raw_record/ZoomSDKAudioRawDataDelegate.h"
+
+#include "raw_send/ZoomSDKVideoSource.h"
 
 using namespace std;
 using namespace jwt;
@@ -51,10 +54,12 @@ class Zoom : public Singleton<Zoom> {
     IAuthService* m_authService;
 
     IZoomSDKRenderer* m_videoHelper;
-    ZoomSDKRendererDelegate* m_videoSource;
+    ZoomSDKRendererDelegate* m_renderDelegate;
 
     IZoomSDKAudioRawDataHelper* m_audioHelper;
     ZoomSDKAudioRawDataDelegate* m_audioSource;
+
+    ZoomSDKVideoSource* m_videoSource;
 
     SDKError createServices();
     void generateJWT(const string& key, const string& secret);

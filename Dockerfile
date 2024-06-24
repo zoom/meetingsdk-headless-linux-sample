@@ -7,6 +7,7 @@ ENV cwd=/tmp/$project
 
 WORKDIR $cwd
 
+ARG DEBIAN_FRONTEND=noninteractive
 
 #  Install Dependencies
 RUN apt-get update  \
@@ -17,6 +18,8 @@ RUN apt-get update  \
     curl \
     gdb \
     git \
+    gfortran \
+    libopencv-dev \
     libdbus-1-3 \
     libgbm1 \
     libgl1-mesa-glx \
