@@ -33,16 +33,12 @@ const run = async () => {
     try {
         connect();
 
-        dbg('Connecting to real-time transcript service');
-        await transcriber.connect();
-
-        socketClient.on('data', (data) => {
-            transcriber.sendAudio(data);
-        });
+        //dbg('Connecting to real-time transcript service');
+        //await transcriber.connect();
 
         // Stop recording and close connection using Ctrl-C.
         process.on('SIGINT', async function () {
-            await transcriber.close();
+            //await transcriber.close();
             process.exit();
         });
     } catch (error) {
@@ -53,4 +49,5 @@ const run = async () => {
 export default {
     run,
     transcriber,
+    socketClient
 };

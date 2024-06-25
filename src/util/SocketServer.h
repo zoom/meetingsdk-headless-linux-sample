@@ -1,4 +1,5 @@
-
+#ifndef MEETINGSDK_HEADLESS_LINUX_SAMPLE_SOCKETSERVER_H
+#define MEETINGSDK_HEADLESS_LINUX_SAMPLE_SOCKETSERVER_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,6 +44,7 @@ public:
     int start();
     void stop();
 
+    int writeBuf(const unsigned char* buf, int len);
     int writeBuf(const char* buf, int len);
     int writeStr(const string& str);
 
@@ -50,3 +52,5 @@ public:
 
     void cleanup();
 };
+
+#endif //MEETINGSDK_HEADLESS_LINUX_SAMPLE_SOCKETSERVER_H

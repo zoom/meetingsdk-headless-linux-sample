@@ -59,6 +59,13 @@ function onConnection(io) {
             let curText, lastText, result;
             curText = lastText = result = '';
 
+            consumer.socketClient.on('data', (data) => {
+                dbg("From Socket!", data.toString());
+                io.to(room).emit('update', { faces: data.toString() });
+
+                //transcriber.sendAudio(data);
+            });
+
             consumer.transcriber.on('transcript', async (transcript) => {
                 if (!transcript.text) {
                     return;
@@ -73,7 +80,6 @@ function onConnection(io) {
                     curText += str
                 } else {
                     lastText += str
-
 
 
                     let stream = await claude.messages

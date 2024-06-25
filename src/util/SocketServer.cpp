@@ -24,10 +24,6 @@ void* SocketServer::run() {
         return nullptr;
     }
 
-    /*
-   * In case the program exited inadvertently on the last run,
-   * remove the socket.
-   */
     cleanup();
 
 
@@ -38,15 +34,8 @@ void* SocketServer::run() {
         return nullptr;
     }
 
-    /*
-     * For portability clear the whole structure, since some
-     * implementations have additional (nonstandard) fields in
-     * the structure.
-     */
-
     memset(&m_addr, 0, sizeof(struct sockaddr_un));
 
-    /* Bind socket to socket name. */
     m_addr.sun_family = AF_UNIX;
     strncpy(m_addr.sun_path, c_socketPath.c_str(), sizeof(m_addr.sun_path) - 1);
 
@@ -57,11 +46,6 @@ void* SocketServer::run() {
         return nullptr;
     }
 
-    /*
-     * Prepare for accepting connections. The backlog size is set
-     * to 20. So while one request is being processed other requests
-     * can be waiting.
-     */
     ret = listen(m_listenSocket, 20);
     if (ret == -1) {
         Log::error("unable to listen on socket");
@@ -74,7 +58,6 @@ void* SocketServer::run() {
     char buffer[c_bufferSize];
 
     for (;;) {
-        /* Wait for incoming connection. */
         m_dataSocket = accept(m_listenSocket, NULL, NULL);
         if (m_dataSocket == -1) {
             Log::error("failed to accept connection");
@@ -82,14 +65,12 @@ void* SocketServer::run() {
         }
 
         for(;;) {
-            /* Wait for next data packet. */
             auto ret = read(m_dataSocket, buffer, 5);
             if (ret == -1) {
                 Log::error("failed to read socket");
                 return nullptr;
             }
 
-            /* Ensure buffer is 0-terminated. */
             buffer[c_bufferSize - 1] = 0;
         }
         return nullptr;
@@ -104,6 +85,16 @@ bool SocketServer::isReady() {
 
 
 int SocketServer::writeBuf(const char* buf, int len) {
+    auto ret = write(m_dataSocket, buf, len);
+    if (ret == -1) {
+        Log::error("failed to write data");
+        exit(EXIT_FAILURE);
+    }
+
+    return 0;
+}
+
+int SocketServer::writeBuf(const unsigned char* buf, int len) {
     auto ret = write(m_dataSocket, buf, len);
     if (ret == -1) {
         Log::error("failed to write data");

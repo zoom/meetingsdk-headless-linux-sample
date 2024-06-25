@@ -14,6 +14,7 @@ IZoomSDKVideoSender *ZoomSDKVideoSource::getSender() const {
 void ZoomSDKVideoSource::onInitialize(IZoomSDKVideoSender *sender,IList <VideoSourceCapability> *support_cap_list,
                                       VideoSourceCapability& suggest_cap){
     m_videoSender = sender;
+    Log::success("onInitialize");
 
 }
 

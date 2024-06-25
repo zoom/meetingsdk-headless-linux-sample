@@ -26,6 +26,7 @@ RUN apt-get update  \
     libglib2.0-0 \
     libglib2.0-dev \
     libssl-dev \
+    libx11-dev \
     libx11-xcb1 \
     libxcb-image0 \
     libxcb-keysyms1 \
@@ -34,6 +35,7 @@ RUN apt-get update  \
     libxcb-shm0 \
     libxcb-xfixes0 \
     libxcb-xtest0 \
+    libgl1-mesa-dri \
     libxfixes3 \
     linux-libc-dev \
     pkgconf \
@@ -47,16 +49,15 @@ RUN apt-get install -y libasound2 libasound2-plugins alsa alsa-utils alsa-oss
 # Install Pulseaudio
 RUN apt-get install -y  pulseaudio pulseaudio-utils
 
+FROM base AS deps
 
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-RUN apt-get install -y nodejs
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh \
+    && bash nodesource_setup.sh \
+    && apt-get install -y nodejs
 
-## Install Tini
 ENV TINI_VERSION v0.19.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
 RUN chmod +x /tini
-
-FROM base AS deps
 
 WORKDIR /opt
 RUN git clone --depth 1 https://github.com/Microsoft/vcpkg.git \

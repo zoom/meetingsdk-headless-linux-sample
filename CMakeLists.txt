@@ -14,6 +14,10 @@ find_package(ada REQUIRED)
 find_package(CLI11 REQUIRED)
 find_path(JWT_CPP_INCLUDE_DIRS "jwt-cpp/base.h")
 
+find_package(X11 REQUIRED)
+include_directories(${X11_INCLUDE_DIR})
+link_directories(${X11_LIBRARIES})
+
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(deps REQUIRED IMPORTED_TARGET glib-2.0)
 
@@ -49,8 +53,9 @@ add_executable(zoomsdk src/main.cpp
         src/util/SocketServer.cpp
 )
 
+
 target_include_directories(zoomsdk PRIVATE ${JWT_CPP_INCLUDE_DIRS})
-target_link_libraries(zoomsdk PRIVATE meetingsdk ada::ada CLI11::CLI11 PkgConfig::deps ${OpenCV_LIBS})
+target_link_libraries(zoomsdk PRIVATE meetingsdk ada::ada CLI11::CLI11 PkgConfig::deps ${OpenCV_LIBS} ${X11_LIBRARIES})
 
 
 

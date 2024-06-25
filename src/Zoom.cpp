@@ -236,7 +236,7 @@ SDKError Zoom::startRawRecording() {
         if (hasError(err, "subscribe to raw video"))
             return err;
 
-/*        auto* videoSourceHelper = GetRawdataVideoSourceHelper();
+  /*      auto* videoSourceHelper = GetRawdataVideoSourceHelper();
         if (!videoSourceHelper) {
             Log::error("Initializing Video Source Helper");
             return SDKERR_UNINITIALIZE;
@@ -250,11 +250,14 @@ SDKError Zoom::startRawRecording() {
         videoSettings->EnableAutoTurnOffVideoWhenJoinMeeting(false);
 
        auto* sender = m_videoSource->getSender();
+        SDKError e;
+        do {
+            Log::info("attempting unmute");
+            auto* videoCtl = m_meetingService->GetMeetingVideoController();
+            e = videoCtl->UnmuteVideo();
+            if (hasError(e, "unmute")) sleep(1);
+        } while (hasError(e));*/
 
-        auto* videoCtl = m_meetingService->GetMeetingVideoController();
-        err = videoCtl->UnmuteVideo();
-        if (hasError(err,"unmute video"))
-            return err;*/
     }
 
     if (m_config.useRawAudio()) {
