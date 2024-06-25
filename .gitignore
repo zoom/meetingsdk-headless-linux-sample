@@ -1,15 +1,13 @@
-
-# Service Account
-service-account.json
+# ignore the config file
+config.toml
 
 # Build folder
 build
+.cmake
+CMakeFiles
 
 # output folder
 out
-
-# ignore the config file
-config.toml
 
 # ignore the SDK files added to the project
 lib/zoomsdk/h

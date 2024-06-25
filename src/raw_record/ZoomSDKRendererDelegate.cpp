@@ -28,6 +28,18 @@ void ZoomSDKRendererDelegate::onRawDataFrameReceived(YUVRawDataI420 *data)
         stringstream ss;
         ss << m_faces.size();
         m_socketServer.writeStr(ss.str());
+
+        if (m_frameCount++ % 2 == 0) {
+            Scalar color = Scalar(0, 0, 255);
+            for (size_t i = 0; i < m_faces.size(); i++) {
+                Rect r = m_faces[i];
+                rectangle( gray, Point(cvRound(r.x*m_scale), cvRound(r.y*m_scale)),
+                           Point(cvRound((r.x + r.width-1)*m_scale),
+                                   cvRound((r.y + r.height-1)*m_scale)), color, 3, 8, 0);
+            }
+
+            imshow(c_window, gray);
+        }
     });
 }
 
@@ -35,7 +47,7 @@ void ZoomSDKRendererDelegate::writeToFile(const string &path, YUVRawDataI420 *da
 {
 
 	std::ofstream file(path, std::ios::out | std::ios::binary | std::ios::app);
-	if (!file.is_open()) 
+	if (!file.is_open())
         return Log::error("failed to open video output file: " + path);
 
 	file.write(data->GetBuffer(), data->GetBufferLen());

@@ -60,7 +60,6 @@ function onConnection(io) {
             curText = lastText = result = '';
 
             consumer.socketClient.on('data', (data) => {
-                dbg("From Socket!", data.toString());
                 io.to(room).emit('update', { faces: data.toString() });
 
                 //transcriber.sendAudio(data);
