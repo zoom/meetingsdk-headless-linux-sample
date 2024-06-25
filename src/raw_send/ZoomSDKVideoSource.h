@@ -23,6 +23,8 @@ class ZoomSDKVideoSource : public IZoomSDKVideoSource    {
     void onUninitialized() override;
 
     IZoomSDKVideoSender* m_videoSender;
+    unsigned int m_height;
+    unsigned int m_width;
     bool m_isReady;
 
 public:

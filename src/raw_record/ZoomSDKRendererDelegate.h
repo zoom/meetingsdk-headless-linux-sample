@@ -7,6 +7,8 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <future>
+
 
 #include <X11/Xlib.h>
 
