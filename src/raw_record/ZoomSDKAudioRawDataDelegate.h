@@ -21,10 +21,11 @@ class ZoomSDKAudioRawDataDelegate : public IZoomSDKAudioRawDataDelegate {
     string m_dir = "out";
     string m_filename = "test.pcm";
     bool m_useMixedAudio;
+    bool m_transcribe;
 
     void writeToFile(const string& path, AudioRawData* data);
 public:
-    ZoomSDKAudioRawDataDelegate(bool useMixedAudio);
+    ZoomSDKAudioRawDataDelegate(bool useMixedAudio, bool transcribe);
     void setDir(const string& dir);
     void setFilename(const string& filename);
 

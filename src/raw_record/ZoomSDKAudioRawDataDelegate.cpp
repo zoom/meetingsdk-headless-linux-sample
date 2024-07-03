@@ -1,15 +1,14 @@
 #include "ZoomSDKAudioRawDataDelegate.h"
 
 
-ZoomSDKAudioRawDataDelegate::ZoomSDKAudioRawDataDelegate(bool useMixedAudio) : m_useMixedAudio(useMixedAudio) {
+ZoomSDKAudioRawDataDelegate::ZoomSDKAudioRawDataDelegate(bool useMixedAudio = true, bool transcribe = false) : m_useMixedAudio(useMixedAudio), m_transcribe(transcribe){
     server.start();
 }
 
 void ZoomSDKAudioRawDataDelegate::onMixedAudioRawDataReceived(AudioRawData *data) {
-    if (!m_useMixedAudio) return;
+    if (!m_useMixedAudio || !m_transcribe) return;
 
-    //char buff[3] = "hi";
-        server.writeBuf(data->GetBuffer(), data->GetBufferLen());
+    server.writeBuf(data->GetBuffer(), data->GetBufferLen());
 
 }
 

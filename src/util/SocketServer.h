@@ -1,5 +1,5 @@
-#define SOCKET_NAME "/tmp/test.sock"
-#define BUFFER_SIZE 1024
+#ifndef MEETINGSDK_HEADLESS_LINUX_SAMPLE_SOCKETSERVER_H
+#define MEETINGSDK_HEADLESS_LINUX_SAMPLE_SOCKETSERVER_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +13,7 @@
 #include <iostream>
 
 #include "Singleton.h"
+#include "Log.h"
 
 using namespace std;
 
@@ -20,11 +21,13 @@ using namespace std;
 class SocketServer : public Singleton<SocketServer> {
     friend class Singleton<SocketServer>;
 
-    struct sockaddr_un addr;
+    const string c_socketPath = "/tmp/meeting.sock";
+    const int c_bufferSize = 256;
 
-    int listenSocket;
-    int dataSocket;
-    char buffer[BUFFER_SIZE];
+    struct sockaddr_un m_addr;
+
+    int m_listenSocket;
+    int m_dataSocket;
 
     pthread_t m_pid;
     pthread_mutex_t m_mutex;
@@ -41,6 +44,7 @@ public:
     int start();
     void stop();
 
+    int writeBuf(const unsigned char* buf, int len);
     int writeBuf(const char* buf, int len);
     int writeStr(const string& str);
 
@@ -48,3 +52,5 @@ public:
 
     void cleanup();
 };
+
+#endif //MEETINGSDK_HEADLESS_LINUX_SAMPLE_SOCKETSERVER_H

@@ -26,7 +26,6 @@ Config::Config() :
     m_rawRecordAudioCmd->add_option("-d, --dir", m_audioDir, "Audio Output Directory");
     m_rawRecordAudioCmd->add_flag("-s, --separate-participants", m_separateParticipantAudio, "Output to separate PCM files for each participant");
     m_rawRecordAudioCmd->add_flag("-t, --transcribe", m_transcribe, "Transcribe audio to text");
-    m_rawRecordAudioCmd->add_flag("--rev_token", m_rev_token, "Rev.ai access token");
 
     m_rawRecordVideoCmd->add_option("-f, --file", m_videoFile, "Output YUV video file")->required();
     m_rawRecordVideoCmd->add_option("-d, --dir", m_videoDir, "Video Output Directory");
@@ -101,7 +100,7 @@ bool Config::useRawRecording() const {
 }
 
 bool Config::useRawAudio() const {
-    return !m_audioFile.empty() || m_separateParticipantAudio;
+    return !m_audioFile.empty() || m_separateParticipantAudio || m_transcribe;
 }
 
 bool Config::useRawVideo() const {
@@ -111,11 +110,6 @@ bool Config::useRawVideo() const {
 bool Config::transcribe() const
 {
     return m_transcribe;
-}
-
-const string& Config::revToken() const
-{
-    return m_rev_token;
 }
 
 const string& Config::audioDir() const {

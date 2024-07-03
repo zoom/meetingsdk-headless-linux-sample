@@ -1,11 +1,13 @@
+# ignore the config file
+config.toml
+
 # Build folder
 build
+.cmake
+CMakeFiles
 
 # output folder
 out
-
-# ignore the config file
-config.toml
 
 # ignore the SDK files added to the project
 lib/zoomsdk/h
@@ -19,6 +21,9 @@ lib/zoomsdk/*.md
 
 # YUV files
 *.yuv
+
+# Node
+node_modules
 
 # MacOS
 .DS_Store

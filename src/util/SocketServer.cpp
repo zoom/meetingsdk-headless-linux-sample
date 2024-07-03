@@ -19,91 +19,59 @@ void SocketServer::threadKill(int sig, siginfo_t *info, void *ctx) {
 }
 
 void* SocketServer::run() {
-    cout << "Starting socket server" << endl;
     if (pthread_mutex_trylock(&m_mutex) != 0) {
-        cerr << "Unable to lock mutex" << endl;
+        Log::error("Unable to lock mutex");
         return nullptr;
     }
-
-    /*
-   * In case the program exited inadvertently on the last run,
-   * remove the socket.
-   */
 
     cleanup();
 
 
     /* Create local socket. */
-
-    listenSocket = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (listenSocket == -1) {
-        cerr << "unable to create listen socket" << endl;
+    m_listenSocket = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (m_listenSocket == -1) {
+        Log::error("unable to create listen socket");
         return nullptr;
     }
 
-    std::cout << "Listening on socket " << SOCKET_NAME << endl;
+    memset(&m_addr, 0, sizeof(struct sockaddr_un));
 
-    /*
-     * For portability clear the whole structure, since some
-     * implementations have additional (nonstandard) fields in
-     * the structure.
-     */
+    m_addr.sun_family = AF_UNIX;
+    strncpy(m_addr.sun_path, c_socketPath.c_str(), sizeof(m_addr.sun_path) - 1);
 
-    memset(&addr, 0, sizeof(struct sockaddr_un));
-
-    /* Bind socket to socket name. */
-
-    addr.sun_family = AF_UNIX;
-    strncpy(addr.sun_path, SOCKET_NAME, sizeof(addr.sun_path) - 1);
-
-    auto ret = bind(listenSocket, (const struct sockaddr *) &addr,
+    auto ret = bind(m_listenSocket, (const struct sockaddr *) &m_addr,
                     sizeof(struct sockaddr_un));
     if (ret == -1) {
-        cerr << "unable to bind socket" << endl;
+        Log::error("unable to bind socket");
         return nullptr;
     }
 
-    /*
-     * Prepare for accepting connections. The backlog size is set
-     * to 20. So while one request is being processed other requests
-     * can be waiting.
-     */
-
-    ret = listen(listenSocket, 20);
+    ret = listen(m_listenSocket, 20);
     if (ret == -1) {
-        cerr << "unable to listen on socket" << endl;
+        Log::error("unable to listen on socket");
         return nullptr;
     }
 
+    Log::info("started socket server");
+    Log::info("listening on socket " + c_socketPath);
+
+    char buffer[c_bufferSize];
 
     for (;;) {
-
-        /* Wait for incoming connection. */
-
-        dataSocket = accept(listenSocket, NULL, NULL);
-        if (dataSocket == -1) {
-            cerr << "failed to accept connection" << endl;
+        m_dataSocket = accept(m_listenSocket, NULL, NULL);
+        if (m_dataSocket == -1) {
+            Log::error("failed to accept connection");
             return nullptr;
         }
 
         for(;;) {
-
-            /* Wait for next data packet. */
-
-            auto ret = read(dataSocket, buffer, 5);
+            auto ret = read(m_dataSocket, buffer, 5);
             if (ret == -1) {
-                cerr << "failed to read socket" << endl;
+                Log::error("failed to read socket");
                 return nullptr;
             }
 
-            /* Ensure buffer is 0-terminated. */
-
-            buffer[BUFFER_SIZE - 1] = 0;
-
-
-            /* Handle commands. */
-            ready = true;
-
+            buffer[c_bufferSize - 1] = 0;
         }
         return nullptr;
     }
@@ -117,9 +85,19 @@ bool SocketServer::isReady() {
 
 
 int SocketServer::writeBuf(const char* buf, int len) {
-    auto ret = write(dataSocket, buf, len);
+    auto ret = write(m_dataSocket, buf, len);
     if (ret == -1) {
-        cerr << "failed to write data" << endl;
+        Log::error("failed to write data");
+        exit(EXIT_FAILURE);
+    }
+
+    return 0;
+}
+
+int SocketServer::writeBuf(const unsigned char* buf, int len) {
+    auto ret = write(m_dataSocket, buf, len);
+    if (ret == -1) {
+        Log::error("failed to write data");
         exit(EXIT_FAILURE);
     }
 
@@ -132,39 +110,36 @@ int SocketServer::writeStr(const string& str) {
 }
 
 void SocketServer::cleanup () {
-    if (access(SOCKET_NAME, F_OK) != -1) {
-        unlink(SOCKET_NAME);
+    if (access(c_socketPath.c_str(), F_OK) != -1) {
+        unlink(c_socketPath.c_str());
     }
 }
 
 
 int SocketServer::start() {
-
-    cout << "creating thread..." << endl;
     if (pthread_create(&m_pid, NULL, &(SocketServer::threadCreate), this) != 0) {
-        cerr << "unable to start thread" << endl;
+        Log::error("unable to start thread");
         return false;
     }
     return true;
 }
 
 void SocketServer::stop() {
-    cout << "Stopping" << endl;
-
     pthread_mutex_destroy(&m_mutex);
     if (m_pid) {
         pthread_cancel(m_pid);
         m_pid = 0;
     }
-    if (listenSocket) {
-        close(listenSocket);
-        listenSocket = 0;
+    if (m_listenSocket) {
+        close(m_listenSocket);
+        m_listenSocket = 0;
     }
 
-    if (dataSocket) {
-        close(dataSocket);
-        dataSocket = 0;
+    if (m_dataSocket) {
+        close(m_dataSocket);
+        m_dataSocket = 0;
     }
 
+    Log::info("Stopped Socket Server");
     cleanup();
 }

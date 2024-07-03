@@ -14,8 +14,15 @@ find_package(ada REQUIRED)
 find_package(CLI11 REQUIRED)
 find_path(JWT_CPP_INCLUDE_DIRS "jwt-cpp/base.h")
 
+find_package(X11 REQUIRED)
+include_directories(${X11_INCLUDE_DIR})
+link_directories(${X11_LIBRARIES})
+
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(deps REQUIRED IMPORTED_TARGET glib-2.0)
+
+find_package( OpenCV REQUIRED )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 include_directories(${ZOOM_SDK}/h)
 link_directories(${ZOOM_SDK} ${ZOOM_SDK})
@@ -40,12 +47,15 @@ add_executable(zoomsdk src/main.cpp
         src/raw_record/ZoomSDKAudioRawDataDelegate.h
         src/raw_record/ZoomSDKRendererDelegate.cpp
         src/raw_record/ZoomSDKRendererDelegate.h
+        src/raw_send/ZoomSDKVideoSource.h
+        src/raw_send/ZoomSDKVideoSource.cpp
         src/util/SocketServer.h
         src/util/SocketServer.cpp
 )
 
+
 target_include_directories(zoomsdk PRIVATE ${JWT_CPP_INCLUDE_DIRS})
-target_link_libraries(zoomsdk PRIVATE meetingsdk ada::ada CLI11::CLI11 PkgConfig::deps)
+target_link_libraries(zoomsdk PRIVATE meetingsdk ada::ada CLI11::CLI11 PkgConfig::deps ${OpenCV_LIBS} ${X11_LIBRARIES})
 
 
 

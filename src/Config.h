@@ -29,7 +29,6 @@ class Config {
     string m_audioFile;
     bool m_separateParticipantAudio;
     bool m_transcribe;
-    string m_rev_token;
 
     CLI::App* m_rawRecordVideoCmd;
     string m_videoDir="out";
@@ -78,7 +77,6 @@ public:
     bool useRawVideo() const;
 
     bool transcribe() const;
-    const string& revToken() const;
 
     const string& audioFile() const;
     const string& videoFile() const;

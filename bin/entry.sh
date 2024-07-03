@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -m
-
 # directory for CMake output
 BUILD=build
 
@@ -36,8 +34,9 @@ setup-pulseaudio() {
 
 build() {
   # Configure CMake if this is the first run
-  [[ ! -d "$BUILD" ]] && { 
+  [[ ! -d "$BUILD" ]] && {
     cmake -B "$BUILD" -S . --preset debug || exit;
+    npm --prefix=client install
   }
 
   # Rename the shared library
@@ -52,13 +51,13 @@ build() {
 }
 
 run() {
-  exec ./"$BUILD"/zoomsdk &
-  node index.js
+    exec npm --prefix=client run dev &
+    exec ./"$BUILD"/zoomsdk
 
-  fg %1
+    wait -n
 }
 
 build && run;
 
-exit
+exit $?
 
