@@ -51,6 +51,12 @@ public:
      */
     void onAICompanionActiveChangeNotice(bool bActive) override {};
 
+    /**
+     * Callback event used when the Meeting Topic changes
+     * @param sTopic string containing the meeting topic
+     */
+    void onMeetingTopicChanged(const zchar_t* sTopic) override {};
+
 
     /* Setters for Callbacks */
     void setOnMeetingJoin(const function<void()>& callback);

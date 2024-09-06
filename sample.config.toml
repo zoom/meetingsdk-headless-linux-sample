@@ -11,4 +11,4 @@ client-secret=""
 join-url=""
 
 [RawAudio]
-transcribe=true
+file="meeting-audio.pcm"

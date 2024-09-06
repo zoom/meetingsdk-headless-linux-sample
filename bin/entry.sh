@@ -51,10 +51,7 @@ build() {
 }
 
 run() {
-    exec npm --prefix=client run dev &
     exec ./"$BUILD"/zoomsdk
-
-    wait -n
 }
 
 build && run;

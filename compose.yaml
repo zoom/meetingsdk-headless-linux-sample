@@ -1,13 +1,8 @@
 services:
   zoomsdk: &zoomsdk
-    stdin_open: true
-    tty: true
     build: ./
     platform: linux/amd64
     volumes:
      - .:/tmp/meeting-sdk-linux-sample
-     - /tmp/.X11-unix/:/tmp/.X11-unix
     ports:
       - "3000:3000"
-    environment:
-      DISPLAY: "docker.for.mac.host.internal:0"

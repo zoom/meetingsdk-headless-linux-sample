@@ -26,8 +26,6 @@ void* SocketServer::run() {
 
     cleanup();
 
-
-    /* Create local socket. */
     m_listenSocket = socket(AF_UNIX, SOCK_STREAM, 0);
     if (m_listenSocket == -1) {
         Log::error("unable to create listen socket");

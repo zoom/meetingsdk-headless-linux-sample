@@ -6,10 +6,27 @@ ZoomSDKAudioRawDataDelegate::ZoomSDKAudioRawDataDelegate(bool useMixedAudio = tr
 }
 
 void ZoomSDKAudioRawDataDelegate::onMixedAudioRawDataReceived(AudioRawData *data) {
-    if (!m_useMixedAudio || !m_transcribe) return;
+    if (!m_useMixedAudio) return;
 
-    server.writeBuf(data->GetBuffer(), data->GetBufferLen());
+    // write to socket
+    if (m_transcribe) {
+        server.writeBuf(data->GetBuffer(), data->GetBufferLen());
+        return;
+    }
 
+    // or write to file
+    if (m_dir.empty())
+        return Log::error("Output Directory cannot be blank");
+
+
+    if (m_filename.empty())
+        m_filename = "test.pcm";
+
+
+    stringstream path;
+    path << m_dir << "/" << m_filename;
+
+    writeToFile(path.str(), data);
 }
 
 

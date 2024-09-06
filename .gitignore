@@ -10,6 +10,7 @@ CMakeFiles
 out
 
 # ignore the SDK files added to the project
+lib/zoomsdk/images
 lib/zoomsdk/h
 lib/zoomsdk/json
 lib/zoomsdk/qt_libs
