@@ -77,6 +77,8 @@ public:
     */
     void onSmartRecordingEnableActionCallback(ISmartRecordingEnableActionHandler* handler) override {};
 
+    void onTranscodingStatusChanged(TranscodingStatus status,const zchar_t* path) override {};
+
 };
 
 

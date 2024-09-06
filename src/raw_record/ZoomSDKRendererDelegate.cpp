@@ -1,34 +1,56 @@
 #include "ZoomSDKRendererDelegate.h"
 
+
+ZoomSDKRendererDelegate::ZoomSDKRendererDelegate() {
+    // For X11 Forwarding
+    XInitThreads();
+
+    if (!m_cascade.load("/usr/share/opencv4/haarcascades/haarcascade_frontalface_default.xml"))
+        Log::error("failed to load cascade file");
+
+    m_faces.reserve(2);
+    m_socketServer.start();
+}
+
 void ZoomSDKRendererDelegate::onRawDataFrameReceived(YUVRawDataI420 *data)
 {
-    stringstream path;
-    path << m_dir << "/" << m_filename;
+    auto res = async(launch::async, [&]{
+        Mat I420(data->GetStreamHeight() * 3/2, data->GetStreamWidth(), CV_8UC1, data->GetBuffer());
+        Mat small, gray;
 
-    writeToFile(path.str(), data);
+        cvtColor(I420, gray, COLOR_YUV2GRAY_I420);
+
+        resize(gray, small, Size(), m_fx, m_fx, INTER_LINEAR);
+        equalizeHist(small, small);
+
+        m_cascade.detectMultiScale(small, m_faces, 1.1, 2, 0|CASCADE_SCALE_IMAGE, Size(30, 30));
+
+        stringstream ss;
+        ss << m_faces.size();
+        m_socketServer.writeStr(ss.str());
+
+        if (m_frameCount++ % 2 == 0) {
+            Scalar color = Scalar(0, 0, 255);
+            for (size_t i = 0; i < m_faces.size(); i++) {
+                Rect r = m_faces[i];
+                rectangle( gray, Point(cvRound(r.x*m_scale), cvRound(r.y*m_scale)),
+                           Point(cvRound((r.x + r.width-1)*m_scale),
+                                   cvRound((r.y + r.height-1)*m_scale)), color, 3, 8, 0);
+            }
+
+            imshow(c_window, gray);
+        }
+    });
 }
 
 void ZoomSDKRendererDelegate::writeToFile(const string &path, YUVRawDataI420 *data)
 {
 
 	std::ofstream file(path, std::ios::out | std::ios::binary | std::ios::app);
-	if (!file.is_open()) 
+	if (!file.is_open())
         return Log::error("failed to open video output file: " + path);
-	
-	// Calculate the sizes for Y, U, and V components
-	size_t ySize = data->GetStreamWidth() * data->GetStreamHeight();
-	size_t uvSize = ySize / 4;
 
-	// Write Y, U, and V components to the output file
-	file.write(data->GetYBuffer(), ySize);
-	file.write(data->GetUBuffer(), uvSize);
-	file.write(data->GetVBuffer(), uvSize);
-
-    auto bytes = ySize + uvSize*2;
-    stringstream ss;
-    ss << "Writing " << bytes << "b to " << path;
-
-    Log::info(ss.str());
+	file.write(data->GetBuffer(), data->GetBufferLen());
 
 	file.close();
 	file.flush();

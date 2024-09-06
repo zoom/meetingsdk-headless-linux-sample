@@ -4,3 +4,5 @@ services:
     platform: linux/amd64
     volumes:
      - .:/tmp/meeting-sdk-linux-sample
+    ports:
+      - "3000:3000"

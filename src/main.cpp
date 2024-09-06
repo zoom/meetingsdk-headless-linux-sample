@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
     // Run the Meeting Bot
     SDKError err = run(argc, argv);
 
-    if (Zoom::hasError(err)) 
+    if (Zoom::hasError(err))
         return err;
 
     // Use an event loop to receive callbacks
@@ -82,6 +82,5 @@ int main(int argc, char **argv) {
 
     return err;
 }
-
 
 

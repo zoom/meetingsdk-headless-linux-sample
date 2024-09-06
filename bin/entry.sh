@@ -33,8 +33,11 @@ setup-pulseaudio() {
 }
 
 build() {
-  # Configure CMake
-  [[ ! -d "$BUILD" ]] && { cmake -B "$BUILD" -S . --preset debug || exit; }
+  # Configure CMake if this is the first run
+  [[ ! -d "$BUILD" ]] && {
+    cmake -B "$BUILD" -S . --preset debug || exit;
+    npm --prefix=client install
+  }
 
   # Rename the shared library
   LIB="lib/zoomsdk/libmeetingsdk.so"
@@ -48,10 +51,10 @@ build() {
 }
 
 run() {
-  exec ./"$BUILD"/zoomsdk;
+    exec ./"$BUILD"/zoomsdk
 }
 
 build && run;
 
-exit
+exit $?
 

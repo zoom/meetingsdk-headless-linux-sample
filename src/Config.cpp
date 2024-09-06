@@ -25,6 +25,7 @@ Config::Config() :
     m_rawRecordAudioCmd->add_option("-f, --file", m_audioFile, "Output PCM audio file")->required();
     m_rawRecordAudioCmd->add_option("-d, --dir", m_audioDir, "Audio Output Directory");
     m_rawRecordAudioCmd->add_flag("-s, --separate-participants", m_separateParticipantAudio, "Output to separate PCM files for each participant");
+    m_rawRecordAudioCmd->add_flag("-t, --transcribe", m_transcribe, "Transcribe audio to text");
 
     m_rawRecordVideoCmd->add_option("-f, --file", m_videoFile, "Output YUV video file")->required();
     m_rawRecordVideoCmd->add_option("-d, --dir", m_videoDir, "Video Output Directory");
@@ -99,11 +100,16 @@ bool Config::useRawRecording() const {
 }
 
 bool Config::useRawAudio() const {
-    return !m_audioFile.empty() || m_separateParticipantAudio;
+    return !m_audioFile.empty() || m_separateParticipantAudio || m_transcribe;
 }
 
 bool Config::useRawVideo() const {
     return !m_videoFile.empty();
+}
+
+bool Config::transcribe() const
+{
+    return m_transcribe;
 }
 
 const string& Config::audioDir() const {

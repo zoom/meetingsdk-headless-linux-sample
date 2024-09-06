@@ -1,20 +1,27 @@
 #include "ZoomSDKAudioRawDataDelegate.h"
 
-ZoomSDKAudioRawDataDelegate::ZoomSDKAudioRawDataDelegate(bool useMixedAudio) : m_useMixedAudio(useMixedAudio)
-{
 
+ZoomSDKAudioRawDataDelegate::ZoomSDKAudioRawDataDelegate(bool useMixedAudio = true, bool transcribe = false) : m_useMixedAudio(useMixedAudio), m_transcribe(transcribe){
+    server.start();
 }
 
 void ZoomSDKAudioRawDataDelegate::onMixedAudioRawDataReceived(AudioRawData *data) {
     if (!m_useMixedAudio) return;
 
+    // write to socket
+    if (m_transcribe) {
+        server.writeBuf(data->GetBuffer(), data->GetBufferLen());
+        return;
+    }
+
+    // or write to file
     if (m_dir.empty())
         return Log::error("Output Directory cannot be blank");
-    
 
-    if (m_filename.empty()) 
+
+    if (m_filename.empty())
         m_filename = "test.pcm";
-    
+
 
     stringstream path;
     path << m_dir << "/" << m_filename;
@@ -34,7 +41,7 @@ void ZoomSDKAudioRawDataDelegate::onOneWayAudioRawDataReceived(AudioRawData* dat
 
 void ZoomSDKAudioRawDataDelegate::onShareAudioRawDataReceived(AudioRawData* data) {
     stringstream ss;
-    ss << "Shared Audio Raw data: " << data->GetBufferLen() << "b at " << data->GetSampleRate() << "Hz";
+    ss << "Shared Audio Raw data: " << data->GetBufferLen() / 10 << "k at " << data->GetSampleRate() << "Hz";
     Log::info(ss.str());
 }
 
