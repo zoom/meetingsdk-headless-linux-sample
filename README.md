@@ -3,11 +3,6 @@
 This sample demonstrates how you can run the Zoom Meeting SDK for Linux within a Docker container and configure it for a
 variety of use cases through an intuitive CLI or through a configuration file.
 
-
-** Important**
-
-For the `ai-dev-summit branch` you must also set up the Zoom App using the README.md file found in the [client](client) folder,
-
 ## Prerequisites
 
 1. [Docker](https://www.docker.com/)
