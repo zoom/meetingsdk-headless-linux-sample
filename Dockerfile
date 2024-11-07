@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 ubuntu:22.04 AS base
+FROM ubuntu:22.04 AS base
 
 SHELL ["/bin/bash", "-c"]
 
@@ -50,10 +50,6 @@ RUN apt-get install -y libasound2 libasound2-plugins alsa alsa-utils alsa-oss
 RUN apt-get install -y  pulseaudio pulseaudio-utils
 
 FROM base AS deps
-
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh \
-    && bash nodesource_setup.sh \
-    && apt-get install -y nodejs
 
 ENV TINI_VERSION v0.19.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini

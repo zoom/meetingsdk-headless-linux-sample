@@ -57,6 +57,14 @@ public:
      */
     void onMeetingTopicChanged(const zchar_t* sTopic) override {};
 
+    /**
+     * Calback event that the meeting users have reached the meeting capacity.
+     * The new join user can not join meeting, but they can watch the meeting live stream.
+     * @param sLiveStreamUrl The live stream URL to watch the meeting live stream.
+     */
+    void onMeetingFullToWatchLiveStream (const zchar_t* sLiveStreamUrl) override{};
+
+
 
     /* Setters for Callbacks */
     void setOnMeetingJoin(const function<void()>& callback);
